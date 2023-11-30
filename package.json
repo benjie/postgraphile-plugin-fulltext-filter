@@ -17,7 +17,6 @@
     "lint": "eslint index.js src/**/*.js"
   },
   "dependencies": {
-    "@tsconfig/node18": "^18.2.2",
     "graphile-build-pg": "^4.2.0",
     "pg-tsquery": "^8.4.1",
     "postgraphile-plugin-connection-filter": "^1.0.0-beta.28"
@@ -27,6 +26,7 @@
     "postgraphile-plugin-connection-filter": "^1.0.0-beta.28"
   },
   "devDependencies": {
+    "@tsconfig/node18": "^18.2.2",
     "@typescript-eslint/eslint-plugin": "^6.13.1",
     "@typescript-eslint/parser": "^6.13.1",
     "eslint": "^8.54.0",
