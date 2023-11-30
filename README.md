@@ -2,13 +2,14 @@
 [![CircleCI](https://circleci.com/gh/mlipscombe/postgraphile-plugin-fulltext-filter/tree/master.svg?style=svg)](https://circleci.com/gh/mlipscombe/postgraphile-plugin-fulltext-filter/tree/master)
 
 # postgraphile-plugin-fulltext-filter
+
 This plugin implements a full text search operator for `tsvector` columns in PostGraphile v4 via @mattbretl's excellent `postgraphile-plugin-connection-filter` plugin.
 
 ## Getting Started
 
 ### CLI
 
-``` bash
+```bash
 postgraphile --append-plugins postgraphile-plugin-connection-filter,postgraphile-plugin-fulltext-filter
 ```
 
@@ -17,11 +18,11 @@ more information about loading plugins with PostGraphile.
 
 ### Library
 
-``` js
-const express = require('express');
-const { postgraphile } = require('postgraphile');
-const PostGraphileConnectionFilterPlugin = require('postgraphile-plugin-connection-filter');
-const PostGraphileFulltextFilterPlugin = require('postgraphile-plugin-fulltext-filter');
+```js
+const express = require("express");
+const { postgraphile } = require("postgraphile");
+const PostGraphileConnectionFilterPlugin = require("postgraphile-plugin-connection-filter");
+const PostGraphileFulltextFilterPlugin = require("postgraphile-plugin-fulltext-filter");
 
 const app = express();
 
@@ -31,7 +32,7 @@ app.use(
       PostGraphileConnectionFilterPlugin,
       PostGraphileFulltextFilterPlugin,
     ],
-  })
+  }),
 );
 
 app.listen(5000);
@@ -41,7 +42,7 @@ app.listen(5000);
 
 All `tsvector` columns that aren't @omit'd should have indexes on them:
 
-``` sql
+```sql
 ALTER TABLE posts ADD COLUMN full_text tsvector;
 CREATE INDEX full_text_idx ON posts USING gin(full_text);
 ```
@@ -57,7 +58,7 @@ user input to prevent Postgres throwing on bad user input unnecessarily.
 
 ## Fields
 
-For each `tsvector` column, a rank column will be automatically added to the 
+For each `tsvector` column, a rank column will be automatically added to the
 GraphQL type for the table by appending `Rank` to the end of the column's name.
 For example, a column `full_text` will appear as `fullText` in the GraphQL type,
 and a second column, `fullTextRank` will be added to the type as a `Float`.
@@ -67,7 +68,7 @@ enum for the table.
 
 ## Examples
 
-``` graphql
+```graphql
 query {
   allPosts(
     filter: {
