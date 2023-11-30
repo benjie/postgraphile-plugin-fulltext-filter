@@ -1,5 +1,7 @@
-const tsquery = require('pg-tsquery');
+const tsqueryFactory = require('pg-tsquery');
 const { omit } = require('graphile-build-pg');
+
+const tsquery = tsqueryFactory();
 
 module.exports = function PostGraphileFulltextFilterPlugin(builder) {
   builder.hook('inflection', (inflection, build) => build.extend(inflection, {
