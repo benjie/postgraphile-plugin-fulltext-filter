@@ -1,1 +1,1 @@
-module.exports = require('./src/PostgraphileFullTextFilterPlugin');
+module.exports = require("./src/PostgraphileFullTextFilterPlugin.js");
