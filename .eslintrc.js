@@ -1,5 +1,5 @@
 module.exports = {
-  parser: "@typescript-eslint/parser",
+  parser: "@babel/eslint-parser",
   parserOptions: {
     sourceType: "module",
     ecmaFeatures: {
@@ -87,13 +87,24 @@ module.exports = {
     // note you must disable the base rule as it can report incorrect errors
     "no-duplicate-imports": "off",
     "import/no-duplicates": "error",
-    "no-dupe-class-members": "off",
-    "no-undef": "off",
-    // This rule doesn't understand import of './js'
-    "import/no-unresolved": "off",
   },
 
   overrides: [
+    // Rules for TypeScript only
+    {
+      files: ["*.ts", "*.tsx"],
+      parser: "@typescript-eslint/parser",
+      parserOptions: {
+        project: true,
+      },
+      rules: {
+        "no-dupe-class-members": "off",
+        "no-undef": "off",
+        // This rule doesn't understand import of './js'
+        "import/no-unresolved": "off",
+      },
+    },
+
     // Rules for tests only
     {
       files: ["**/__tests__/**/*.{ts,js}"],
