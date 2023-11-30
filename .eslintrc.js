@@ -1,56 +1,112 @@
 module.exports = {
-    "parserOptions": {
-      "ecmaFeatures": {
-        "jsx": true
-      }
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    sourceType: "module",
+    ecmaFeatures: {
+      jsx: true,
     },
-    "extends": [
-      "airbnb-base"
+    project: true,
+  },
+  extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    //'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    "plugin:import/errors",
+    "plugin:import/typescript",
+    // "plugin:graphile-export/recommended",
+    "prettier",
+  ],
+  plugins: [
+    "jest",
+    "tsdoc",
+    "simple-import-sort",
+    "import",
+    // "graphile-export",
+  ],
+  env: {
+    jest: true,
+    node: true,
+    es6: true,
+  },
+  globals: {
+    jasmine: false,
+  },
+  rules: {
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/ban-ts-ignore": "off",
+    "@typescript-eslint/camelcase": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-empty-interface": "off",
+    // We need this for our `GraphileEngine` namespace
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/consistent-type-imports": "error",
+    "no-confusing-arrow": 0,
+    "no-else-return": 0,
+    "no-underscore-dangle": 0,
+    "no-restricted-syntax": 0,
+    "no-await-in-loop": 0,
+    "jest/no-focused-tests": 2,
+    "jest/no-identical-title": 2,
+    "tsdoc/syntax": 2,
+
+    // Rules that we should enable:
+    "@typescript-eslint/no-inferrable-types": "warn",
+    "no-inner-declarations": "warn",
+
+    // Rules we've disabled for now because they're so noisy (but we should really address)
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        args: "after-used",
+        ignoreRestSiblings: true,
+      },
     ],
-    "env": {
-      "jest": true
+
+    /*
+     * simple-import-sort seems to be the most stable import sorting currently,
+     * disable others
+     */
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+    "sort-imports": "off",
+    "import/order": "off",
+
+    "import/extensions": ["error", "ignorePackages"],
+    "import/no-deprecated": "warn",
+
+    // Apply has been more optimised than spread, use whatever feels right.
+    "prefer-spread": "off",
+
+    // note you must disable the base rule as it can report incorrect errors
+    "no-duplicate-imports": "off",
+    "import/no-duplicates": "error",
+    "no-dupe-class-members": "off",
+    "no-undef": "off",
+    // This rule doesn't understand import of './js'
+    "import/no-unresolved": "off",
+  },
+
+  overrides: [
+    // Rules for tests only
+    {
+      files: ["**/__tests__/**/*.{ts,js}"],
+      rules: {
+        // Disable these to enable faster test writing
+        "prefer-const": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+
+        // We don't normally care about race conditions in tests
+        "require-atomic-updates": "off",
+      },
     },
-    "globals": {
-      "expect": false
-    },
-    "rules": {
-      "import/no-unresolved": 0,
-      "import/no-extraneous-dependencies": 0,
-      "import/extensions": 0,
-      "import/prefer-default-export": 0,
-      "max-len": 0,
-      "symbol-description": 0,
-      "no-nested-ternary": 0,
-      "no-alert": 0,
-      "no-console": 0,
-      "no-plusplus": 0,
-      "no-restricted-globals": 0,
-      "no-underscore-dangle": [
-        "error",
-        {
-          "allow": [
-            "_fields",
-            "__fts_ranks"
-          ]
-        }
-      ],
-      "no-param-reassign": [
-        "error",
-        {
-          "props": false
-        }
-      ],
-      "no-return-assign": [
-        "error",
-        "except-parens"
-      ],
-      "class-methods-use-this": 0,
-      "prefer-destructuring": [
-        "error",
-        {
-          "object": true,
-          "array": false
-        }
-      ]
-    }
-  }
+  ],
+};
