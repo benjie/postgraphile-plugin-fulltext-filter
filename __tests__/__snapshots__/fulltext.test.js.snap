@@ -2,24 +2,24 @@
 
 exports[`fulltext search field is created 1`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__allowedLegacyNames": [],
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
   ],
-  "_implementations": Object {
-    "Node": Array [
+  "_implementations": {
+    "Node": [
       "Query",
       "Job",
     ],
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
+  "_possibleTypeMap": {},
   "_queryType": "Query",
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "CreateJobInput": "CreateJobInput",
     "CreateJobPayload": "CreateJobPayload",
@@ -61,29 +61,30 @@ GraphQLSchema {
   },
   "astNode": undefined,
   "extensionASTNodes": undefined,
+  "extensions": undefined,
 }
 `;
 
 exports[`fulltext search field is created 2`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__allowedLegacyNames": [],
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
   ],
-  "_implementations": Object {
-    "Node": Array [
+  "_implementations": {
+    "Node": [
       "Query",
       "Job",
     ],
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
+  "_possibleTypeMap": {},
   "_queryType": "Query",
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "CreateJobInput": "CreateJobInput",
     "CreateJobPayload": "CreateJobPayload",
@@ -125,29 +126,30 @@ GraphQLSchema {
   },
   "astNode": undefined,
   "extensionASTNodes": undefined,
+  "extensions": undefined,
 }
 `;
 
 exports[`querying rank without filter works 1`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__allowedLegacyNames": [],
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
   ],
-  "_implementations": Object {
-    "Node": Array [
+  "_implementations": {
+    "Node": [
       "Query",
       "Job",
     ],
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
+  "_possibleTypeMap": {},
   "_queryType": "Query",
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "CreateJobInput": "CreateJobInput",
     "CreateJobPayload": "CreateJobPayload",
@@ -189,29 +191,30 @@ GraphQLSchema {
   },
   "astNode": undefined,
   "extensionASTNodes": undefined,
+  "extensions": undefined,
 }
 `;
 
 exports[`sort by full text rank field works 1`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__allowedLegacyNames": [],
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
   ],
-  "_implementations": Object {
-    "Node": Array [
+  "_implementations": {
+    "Node": [
       "Query",
       "Job",
     ],
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
+  "_possibleTypeMap": {},
   "_queryType": "Query",
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "CreateJobInput": "CreateJobInput",
     "CreateJobPayload": "CreateJobPayload",
@@ -253,29 +256,30 @@ GraphQLSchema {
   },
   "astNode": undefined,
   "extensionASTNodes": undefined,
+  "extensions": undefined,
 }
 `;
 
 exports[`table with unfiltered full-text field works 1`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__allowedLegacyNames": [],
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
   ],
-  "_implementations": Object {
-    "Node": Array [
+  "_implementations": {
+    "Node": [
       "Query",
       "Job",
     ],
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
+  "_possibleTypeMap": {},
   "_queryType": "Query",
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "CreateJobInput": "CreateJobInput",
     "CreateJobPayload": "CreateJobPayload",
@@ -317,30 +321,31 @@ GraphQLSchema {
   },
   "astNode": undefined,
   "extensionASTNodes": undefined,
+  "extensions": undefined,
 }
 `;
 
 exports[`works with connectionFilterRelations 1`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__allowedLegacyNames": [],
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
   ],
-  "_implementations": Object {
-    "Node": Array [
+  "_implementations": {
+    "Node": [
       "Query",
       "Client",
       "Order",
     ],
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
+  "_possibleTypeMap": {},
   "_queryType": "Query",
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "Client": "Client",
     "ClientCondition": "ClientCondition",
@@ -399,30 +404,31 @@ GraphQLSchema {
   },
   "astNode": undefined,
   "extensionASTNodes": undefined,
+  "extensions": undefined,
 }
 `;
 
 exports[`works with connectionFilterRelations with no local filter 1`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__allowedLegacyNames": [],
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
   ],
-  "_implementations": Object {
-    "Node": Array [
+  "_implementations": {
+    "Node": [
       "Query",
       "Client",
       "Order",
     ],
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
+  "_possibleTypeMap": {},
   "_queryType": "Query",
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "Client": "Client",
     "ClientCondition": "ClientCondition",
@@ -481,5 +487,6 @@ GraphQLSchema {
   },
   "astNode": undefined,
   "extensionASTNodes": undefined,
+  "extensions": undefined,
 }
 `;
