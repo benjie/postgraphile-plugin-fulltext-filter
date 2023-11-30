@@ -1011,7 +1011,7 @@
     chalk "^4.1.2"
     tslib "^2.6.2"
 
-"@dataplan/pg@0.0.1-beta.12":
+"@dataplan/pg@0.0.1-beta.12", "@dataplan/pg@^0.0.1-beta.12":
   version "0.0.1-beta.12"
   resolved "https://registry.yarnpkg.com/@dataplan/pg/-/pg-0.0.1-beta.12.tgz#4daaa98e4f622f4457c2264babf4cb251f4e5621"
   integrity sha512-YqDxJgVm3t/yQCFpLMrLL1R25QGEYckcRZvEkHsv/dBvid5QBmdaZGo46AimzLT0R8tWZR/XU4uHiNNBzyyC0g==
@@ -2858,7 +2858,7 @@ graphemer@^1.4.0:
   resolved "https://registry.yarnpkg.com/graphemer/-/graphemer-1.4.0.tgz#fb2f1d55e0e3a1849aeffc90c4fa0dd53a0e66c6"
   integrity sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==
 
-graphile-build-pg@5.0.0-beta.15:
+graphile-build-pg@5.0.0-beta.15, graphile-build-pg@^5.0.0-beta.15:
   version "5.0.0-beta.15"
   resolved "https://registry.yarnpkg.com/graphile-build-pg/-/graphile-build-pg-5.0.0-beta.15.tgz#c734011cfb324b37dcf35390dff29cf5f10f3261"
   integrity sha512-GVpDJflvspVkMy5Sj6in+rq2rNqDPzAt2LBsYjpMqN5uU/OUSaE4aJTY7C+upmPWwpfY5ZP1Xt66+A+cVBed8g==
@@ -2886,6 +2886,21 @@ graphile-build@5.0.0-beta.11:
     pluralize "^7.0.0"
     semver "^7.5.4"
     tslib "^2.6.2"
+
+graphile-config@^0.0.1-beta.3:
+  version "0.0.1-beta.3"
+  resolved "https://registry.yarnpkg.com/graphile-config/-/graphile-config-0.0.1-beta.3.tgz#d5d3ee621b23cab3c811a591f66d76b7e68d5a53"
+  integrity sha512-t+cP2UxTkZlye8VmyyYU/Ak5zGWOPKm9L9H7uMdfTaBjgPvyt88OiG3EoSj90DTETZQ++zgr4yHwapW8nDqoFA==
+  dependencies:
+    "@types/interpret" "^1.1.1"
+    "@types/node" "^20.5.7"
+    "@types/semver" "^7.5.1"
+    chalk "^4.1.2"
+    debug "^4.3.4"
+    interpret "^3.1.1"
+    semver "^7.5.4"
+    tslib "^2.6.2"
+    yargs "^17.7.2"
 
 graphile-config@^0.0.1-beta.4:
   version "0.0.1-beta.4"
