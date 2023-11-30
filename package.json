@@ -2,7 +2,7 @@
   "name": "postgraphile-plugin-fulltext-filter",
   "version": "1.0.0-beta.7",
   "description": "Full text searching on tsvector fields for use with postgraphile-plugin-connection-filter",
-  "main": "index.js",
+  "main": "dist/index.js",
   "repository": {
     "url": "git+https://github.com/mlipscombe/postgraphile-plugin-fulltext-filter.git",
     "type": "git"
@@ -13,7 +13,7 @@
     "url": "https://github.com/mlipscombe/postgraphile-plugin-fulltext-filter.git"
   },
   "scripts": {
-    "test": "scripts/test jest -i",
+    "test": "tsc && scripts/test jest -i",
     "lint": "eslint index.js src/**/*.js"
   },
   "dependencies": {
@@ -49,11 +49,10 @@
   "jest": {
     "testRegex": "__tests__/.*\\.test\\.js$",
     "collectCoverageFrom": [
-      "src/*.js",
-      "index.js"
+      "src/*.ts"
     ]
   },
   "files": [
-    "src"
+    "dist"
   ]
 }

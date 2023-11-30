@@ -96,7 +96,7 @@ module.exports = function PostGraphileFulltextFilterPlugin(builder) {
       },
     );
 
-    return (_, build);
+    return _;
   });
 
   builder.hook('GraphQLObjectType:fields', (fields, build, context) => {

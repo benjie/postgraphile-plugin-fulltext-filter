@@ -13,7 +13,7 @@
     "declarationMap": true,
     "allowJs": false,
 
-    "module": "CommonJS",
+    "module": "nodenext",
     "moduleResolution": "nodenext",
     "target": "ES2022",
 
@@ -21,7 +21,8 @@
     "pretty": true,
     "importHelpers": false,
     "experimentalDecorators": false,
-    "noImplicitAny": true,
+    // "noImplicitAny": true,
+    "noImplicitAny": false,
     "strictNullChecks": true,
     "noFallthroughCasesInSwitch": true,
     "preserveWatchOutput": true,

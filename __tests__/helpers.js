@@ -137,7 +137,7 @@ const withSchema = ({
     {
       appendPlugins: [
         require('postgraphile-plugin-connection-filter'),
-        require('../index.js')
+        require('../dist/index.js')
       ],
       showErrorStack: true,
     },
