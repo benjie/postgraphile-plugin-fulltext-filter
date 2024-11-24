@@ -1,520 +1,4803 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`fulltext search field is created 1`] = `
-GraphQLSchema {
-  "__validationErrors": [],
-  "_directives": [
-    "@include",
-    "@skip",
-    "@deprecated",
-    "@specifiedBy",
-  ],
-  "_implementationsMap": {
-    "Node": {
-      "interfaces": [],
-      "objects": [
-        "Query",
-        "Job",
-      ],
-    },
-  },
-  "_mutationType": "Mutation",
-  "_queryType": "Query",
-  "_subTypeMap": {},
-  "_subscriptionType": undefined,
-  "_typeMap": {
-    "Boolean": "Boolean",
-    "CreateJobInput": "CreateJobInput",
-    "CreateJobPayload": "CreateJobPayload",
-    "Cursor": "Cursor",
-    "DeleteJobByIdInput": "DeleteJobByIdInput",
-    "DeleteJobInput": "DeleteJobInput",
-    "DeleteJobPayload": "DeleteJobPayload",
-    "Float": "Float",
-    "FullText": "FullText",
-    "FullTextFilter": "FullTextFilter",
-    "ID": "ID",
-    "Int": "Int",
-    "IntFilter": "IntFilter",
-    "Job": "Job",
-    "JobCondition": "JobCondition",
-    "JobFilter": "JobFilter",
-    "JobInput": "JobInput",
-    "JobPatch": "JobPatch",
-    "JobsConnection": "JobsConnection",
-    "JobsEdge": "JobsEdge",
-    "JobsOrderBy": "JobsOrderBy",
-    "Mutation": "Mutation",
-    "Node": "Node",
-    "PageInfo": "PageInfo",
-    "Query": "Query",
-    "String": "String",
-    "StringFilter": "StringFilter",
-    "UpdateJobByIdInput": "UpdateJobByIdInput",
-    "UpdateJobInput": "UpdateJobInput",
-    "UpdateJobPayload": "UpdateJobPayload",
-    "__Directive": "__Directive",
-    "__DirectiveLocation": "__DirectiveLocation",
-    "__EnumValue": "__EnumValue",
-    "__Field": "__Field",
-    "__InputValue": "__InputValue",
-    "__Schema": "__Schema",
-    "__Type": "__Type",
-    "__TypeKind": "__TypeKind",
-  },
-  "astNode": undefined,
-  "description": undefined,
-  "extensionASTNodes": undefined,
-  "extensions": undefined,
+"""All input for the create \`Job\` mutation."""
+input CreateJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The \`Job\` to be created by this mutation."""
+  job: JobInput!
 }
+
+"""The output of our create \`Job\` mutation."""
+type CreateJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was created by this mutation."""
+  job: Job
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
+"""A location in a connection that can be used for resuming pagination."""
+scalar Cursor
+
+"""All input for the \`deleteJobById\` mutation."""
+input DeleteJobByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: Int!
+}
+
+"""All input for the \`deleteJob\` mutation."""
+input DeleteJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Job\` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""The output of our delete \`Job\` mutation."""
+type DeleteJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was deleted by this mutation."""
+  job: Job
+  deletedJobId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
+scalar FullText
+
+"""
+A filter to be used against FullText fields. All fields are combined with a logical ‘and.’
+"""
+input FullTextFilter {
+  """Performs a full text search on the field."""
+  matches: String
+}
+
+"""
+A filter to be used against Int fields. All fields are combined with a logical ‘and.’
+"""
+input IntFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: Int
+
+  """Not equal to the specified value."""
+  notEqualTo: Int
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Int
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Int
+
+  """Included in the specified list."""
+  in: [Int!]
+
+  """Not included in the specified list."""
+  notIn: [Int!]
+
+  """Less than the specified value."""
+  lessThan: Int
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Int
+
+  """Greater than the specified value."""
+  greaterThan: Int
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Int
+}
+
+type Job implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: Int!
+  name: String!
+  fullText: FullText
+
+  """Full-text search ranking when filtered by \`fullText\`."""
+  fullTextRank: Float
+}
+
+"""
+A condition to be used against \`Job\` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input JobCondition {
+  """Checks for equality with the object’s \`id\` field."""
+  id: Int
+
+  """Checks for equality with the object’s \`name\` field."""
+  name: String
+
+  """Checks for equality with the object’s \`fullText\` field."""
+  fullText: FullText
+}
+
+"""
+A filter to be used against \`Job\` object types. All fields are combined with a logical ‘and.’
+"""
+input JobFilter {
+  """Filter by the object’s \`id\` field."""
+  id: IntFilter
+
+  """Filter by the object’s \`name\` field."""
+  name: StringFilter
+
+  """Filter by the object’s \`fullText\` field."""
+  fullText: FullTextFilter
+
+  """Checks for all expressions in this list."""
+  and: [JobFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [JobFilter!]
+
+  """Negates the expression."""
+  not: JobFilter
+}
+
+"""An input for mutations affecting \`Job\`"""
+input JobInput {
+  id: Int
+  name: String!
+  fullText: FullText
+}
+
+"""Represents an update to a \`Job\`. Fields that are set will be updated."""
+input JobPatch {
+  id: Int
+  name: String
+  fullText: FullText
+}
+
+"""A connection to a list of \`Job\` values."""
+type JobsConnection {
+  """A list of \`Job\` objects."""
+  nodes: [Job]!
+
+  """
+  A list of edges which contains the \`Job\` and cursor to aid in pagination.
+  """
+  edges: [JobsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* \`Job\` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A \`Job\` edge in the connection."""
+type JobsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The \`Job\` at the end of the edge."""
+  node: Job
+}
+
+"""Methods to use when ordering \`Job\`."""
+enum JobsOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  NAME_ASC
+  NAME_DESC
+  FULL_TEXT_ASC
+  FULL_TEXT_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  FULL_TEXT_RANK_ASC
+  FULL_TEXT_RANK_DESC
+}
+
+"""
+The root mutation type which contains root level fields which mutate data.
+"""
+type Mutation {
+  """Creates a single \`Job\`."""
+  createJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateJobInput!
+  ): CreateJobPayload
+
+  """Updates a single \`Job\` using its globally unique id and a patch."""
+  updateJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateJobInput!
+  ): UpdateJobPayload
+
+  """Updates a single \`Job\` using a unique key and a patch."""
+  updateJobById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateJobByIdInput!
+  ): UpdateJobPayload
+
+  """Deletes a single \`Job\` using its globally unique id."""
+  deleteJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteJobInput!
+  ): DeleteJobPayload
+
+  """Deletes a single \`Job\` using a unique key."""
+  deleteJobById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteJobByIdInput!
+  ): DeleteJobPayload
+}
+
+"""An object with a globally unique \`ID\`."""
+interface Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+}
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: Cursor
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: Cursor
+}
+
+"""The root query type which gives access points into the data universe."""
+type Query implements Node {
+  """
+  Exposes the root query type nested one level down. This is helpful for Relay 1
+  which can only query top level fields if they are in a particular form.
+  """
+  query: Query!
+
+  """
+  The root query type must be a \`Node\` to work well with Relay 1 mutations. This just resolves to \`query\`.
+  """
+  nodeId: ID!
+
+  """Fetches an object given its globally unique \`ID\`."""
+  node(
+    """The globally unique \`ID\`."""
+    nodeId: ID!
+  ): Node
+
+  """Reads and enables pagination through a set of \`Job\`."""
+  allJobs(
+    """Only read the first \`n\` values of the set."""
+    first: Int
+
+    """Only read the last \`n\` values of the set."""
+    last: Int
+
+    """
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: JobCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: JobFilter
+  ): JobsConnection
+  jobById(id: Int!): Job
+
+  """Reads a single \`Job\` using its globally unique \`ID\`."""
+  job(
+    """The globally unique \`ID\` to be used in selecting a single \`Job\`."""
+    nodeId: ID!
+  ): Job
+}
+
+"""
+A filter to be used against String fields. All fields are combined with a logical ‘and.’
+"""
+input StringFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: String
+
+  """Not equal to the specified value."""
+  notEqualTo: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: String
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: String
+
+  """Included in the specified list."""
+  in: [String!]
+
+  """Not included in the specified list."""
+  notIn: [String!]
+
+  """Less than the specified value."""
+  lessThan: String
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: String
+
+  """Greater than the specified value."""
+  greaterThan: String
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: String
+
+  """Contains the specified string (case-sensitive)."""
+  includes: String
+
+  """Does not contain the specified string (case-sensitive)."""
+  notIncludes: String
+
+  """Contains the specified string (case-insensitive)."""
+  includesInsensitive: String
+
+  """Does not contain the specified string (case-insensitive)."""
+  notIncludesInsensitive: String
+
+  """Starts with the specified string (case-sensitive)."""
+  startsWith: String
+
+  """Does not start with the specified string (case-sensitive)."""
+  notStartsWith: String
+
+  """Starts with the specified string (case-insensitive)."""
+  startsWithInsensitive: String
+
+  """Does not start with the specified string (case-insensitive)."""
+  notStartsWithInsensitive: String
+
+  """Ends with the specified string (case-sensitive)."""
+  endsWith: String
+
+  """Does not end with the specified string (case-sensitive)."""
+  notEndsWith: String
+
+  """Ends with the specified string (case-insensitive)."""
+  endsWithInsensitive: String
+
+  """Does not end with the specified string (case-insensitive)."""
+  notEndsWithInsensitive: String
+
+  """
+  Matches the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  like: String
+
+  """
+  Does not match the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLike: String
+
+  """
+  Matches the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  likeInsensitive: String
+
+  """
+  Does not match the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLikeInsensitive: String
+
+  """Equal to the specified value (case-insensitive)."""
+  equalToInsensitive: String
+
+  """Not equal to the specified value (case-insensitive)."""
+  notEqualToInsensitive: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  distinctFromInsensitive: String
+
+  """
+  Equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  notDistinctFromInsensitive: String
+
+  """Included in the specified list (case-insensitive)."""
+  inInsensitive: [String!]
+
+  """Not included in the specified list (case-insensitive)."""
+  notInInsensitive: [String!]
+
+  """Less than the specified value (case-insensitive)."""
+  lessThanInsensitive: String
+
+  """Less than or equal to the specified value (case-insensitive)."""
+  lessThanOrEqualToInsensitive: String
+
+  """Greater than the specified value (case-insensitive)."""
+  greaterThanInsensitive: String
+
+  """Greater than or equal to the specified value (case-insensitive)."""
+  greaterThanOrEqualToInsensitive: String
+}
+
+"""All input for the \`updateJobById\` mutation."""
+input UpdateJobByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the \`Job\` being updated.
+  """
+  jobPatch: JobPatch!
+  id: Int!
+}
+
+"""All input for the \`updateJob\` mutation."""
+input UpdateJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Job\` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the \`Job\` being updated.
+  """
+  jobPatch: JobPatch!
+}
+
+"""The output of our update \`Job\` mutation."""
+type UpdateJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was updated by this mutation."""
+  job: Job
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
 `;
 
 exports[`fulltext search field is created 2`] = `
-GraphQLSchema {
-  "__validationErrors": [],
-  "_directives": [
-    "@include",
-    "@skip",
-    "@deprecated",
-    "@specifiedBy",
-  ],
-  "_implementationsMap": {
-    "Node": {
-      "interfaces": [],
-      "objects": [
-        "Query",
-        "Job",
-      ],
-    },
-  },
-  "_mutationType": "Mutation",
-  "_queryType": "Query",
-  "_subTypeMap": {},
-  "_subscriptionType": undefined,
-  "_typeMap": {
-    "Boolean": "Boolean",
-    "CreateJobInput": "CreateJobInput",
-    "CreateJobPayload": "CreateJobPayload",
-    "Cursor": "Cursor",
-    "DeleteJobByIdInput": "DeleteJobByIdInput",
-    "DeleteJobInput": "DeleteJobInput",
-    "DeleteJobPayload": "DeleteJobPayload",
-    "Float": "Float",
-    "FullText": "FullText",
-    "FullTextFilter": "FullTextFilter",
-    "ID": "ID",
-    "Int": "Int",
-    "IntFilter": "IntFilter",
-    "Job": "Job",
-    "JobCondition": "JobCondition",
-    "JobFilter": "JobFilter",
-    "JobInput": "JobInput",
-    "JobPatch": "JobPatch",
-    "JobsConnection": "JobsConnection",
-    "JobsEdge": "JobsEdge",
-    "JobsOrderBy": "JobsOrderBy",
-    "Mutation": "Mutation",
-    "Node": "Node",
-    "PageInfo": "PageInfo",
-    "Query": "Query",
-    "String": "String",
-    "StringFilter": "StringFilter",
-    "UpdateJobByIdInput": "UpdateJobByIdInput",
-    "UpdateJobInput": "UpdateJobInput",
-    "UpdateJobPayload": "UpdateJobPayload",
-    "__Directive": "__Directive",
-    "__DirectiveLocation": "__DirectiveLocation",
-    "__EnumValue": "__EnumValue",
-    "__Field": "__Field",
-    "__InputValue": "__InputValue",
-    "__Schema": "__Schema",
-    "__Type": "__Type",
-    "__TypeKind": "__TypeKind",
-  },
-  "astNode": undefined,
-  "description": undefined,
-  "extensionASTNodes": undefined,
-  "extensions": undefined,
+"""All input for the create \`Job\` mutation."""
+input CreateJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The \`Job\` to be created by this mutation."""
+  job: JobInput!
 }
+
+"""The output of our create \`Job\` mutation."""
+type CreateJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was created by this mutation."""
+  job: Job
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
+"""A location in a connection that can be used for resuming pagination."""
+scalar Cursor
+
+"""All input for the \`deleteJobById\` mutation."""
+input DeleteJobByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: Int!
+}
+
+"""All input for the \`deleteJob\` mutation."""
+input DeleteJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Job\` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""The output of our delete \`Job\` mutation."""
+type DeleteJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was deleted by this mutation."""
+  job: Job
+  deletedJobId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
+scalar FullText
+
+"""
+A filter to be used against FullText fields. All fields are combined with a logical ‘and.’
+"""
+input FullTextFilter {
+  """Performs a full text search on the field."""
+  matches: String
+}
+
+"""
+A filter to be used against Int fields. All fields are combined with a logical ‘and.’
+"""
+input IntFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: Int
+
+  """Not equal to the specified value."""
+  notEqualTo: Int
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Int
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Int
+
+  """Included in the specified list."""
+  in: [Int!]
+
+  """Not included in the specified list."""
+  notIn: [Int!]
+
+  """Less than the specified value."""
+  lessThan: Int
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Int
+
+  """Greater than the specified value."""
+  greaterThan: Int
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Int
+}
+
+type Job implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: Int!
+  name: String!
+  fullText: FullText
+  otherFullText: FullText
+
+  """Full-text search ranking when filtered by \`fullText\`."""
+  fullTextRank: Float
+
+  """Full-text search ranking when filtered by \`otherFullText\`."""
+  otherFullTextRank: Float
+}
+
+"""
+A condition to be used against \`Job\` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input JobCondition {
+  """Checks for equality with the object’s \`id\` field."""
+  id: Int
+
+  """Checks for equality with the object’s \`name\` field."""
+  name: String
+
+  """Checks for equality with the object’s \`fullText\` field."""
+  fullText: FullText
+
+  """Checks for equality with the object’s \`otherFullText\` field."""
+  otherFullText: FullText
+}
+
+"""
+A filter to be used against \`Job\` object types. All fields are combined with a logical ‘and.’
+"""
+input JobFilter {
+  """Filter by the object’s \`id\` field."""
+  id: IntFilter
+
+  """Filter by the object’s \`name\` field."""
+  name: StringFilter
+
+  """Filter by the object’s \`fullText\` field."""
+  fullText: FullTextFilter
+
+  """Filter by the object’s \`otherFullText\` field."""
+  otherFullText: FullTextFilter
+
+  """Checks for all expressions in this list."""
+  and: [JobFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [JobFilter!]
+
+  """Negates the expression."""
+  not: JobFilter
+}
+
+"""An input for mutations affecting \`Job\`"""
+input JobInput {
+  id: Int
+  name: String!
+  fullText: FullText
+  otherFullText: FullText
+}
+
+"""Represents an update to a \`Job\`. Fields that are set will be updated."""
+input JobPatch {
+  id: Int
+  name: String
+  fullText: FullText
+  otherFullText: FullText
+}
+
+"""A connection to a list of \`Job\` values."""
+type JobsConnection {
+  """A list of \`Job\` objects."""
+  nodes: [Job]!
+
+  """
+  A list of edges which contains the \`Job\` and cursor to aid in pagination.
+  """
+  edges: [JobsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* \`Job\` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A \`Job\` edge in the connection."""
+type JobsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The \`Job\` at the end of the edge."""
+  node: Job
+}
+
+"""Methods to use when ordering \`Job\`."""
+enum JobsOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  NAME_ASC
+  NAME_DESC
+  FULL_TEXT_ASC
+  FULL_TEXT_DESC
+  OTHER_FULL_TEXT_ASC
+  OTHER_FULL_TEXT_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  FULL_TEXT_RANK_ASC
+  FULL_TEXT_RANK_DESC
+  OTHER_FULL_TEXT_RANK_ASC
+  OTHER_FULL_TEXT_RANK_DESC
+}
+
+"""
+The root mutation type which contains root level fields which mutate data.
+"""
+type Mutation {
+  """Creates a single \`Job\`."""
+  createJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateJobInput!
+  ): CreateJobPayload
+
+  """Updates a single \`Job\` using its globally unique id and a patch."""
+  updateJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateJobInput!
+  ): UpdateJobPayload
+
+  """Updates a single \`Job\` using a unique key and a patch."""
+  updateJobById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateJobByIdInput!
+  ): UpdateJobPayload
+
+  """Deletes a single \`Job\` using its globally unique id."""
+  deleteJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteJobInput!
+  ): DeleteJobPayload
+
+  """Deletes a single \`Job\` using a unique key."""
+  deleteJobById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteJobByIdInput!
+  ): DeleteJobPayload
+}
+
+"""An object with a globally unique \`ID\`."""
+interface Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+}
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: Cursor
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: Cursor
+}
+
+"""The root query type which gives access points into the data universe."""
+type Query implements Node {
+  """
+  Exposes the root query type nested one level down. This is helpful for Relay 1
+  which can only query top level fields if they are in a particular form.
+  """
+  query: Query!
+
+  """
+  The root query type must be a \`Node\` to work well with Relay 1 mutations. This just resolves to \`query\`.
+  """
+  nodeId: ID!
+
+  """Fetches an object given its globally unique \`ID\`."""
+  node(
+    """The globally unique \`ID\`."""
+    nodeId: ID!
+  ): Node
+
+  """Reads and enables pagination through a set of \`Job\`."""
+  allJobs(
+    """Only read the first \`n\` values of the set."""
+    first: Int
+
+    """Only read the last \`n\` values of the set."""
+    last: Int
+
+    """
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: JobCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: JobFilter
+  ): JobsConnection
+  jobById(id: Int!): Job
+
+  """Reads a single \`Job\` using its globally unique \`ID\`."""
+  job(
+    """The globally unique \`ID\` to be used in selecting a single \`Job\`."""
+    nodeId: ID!
+  ): Job
+}
+
+"""
+A filter to be used against String fields. All fields are combined with a logical ‘and.’
+"""
+input StringFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: String
+
+  """Not equal to the specified value."""
+  notEqualTo: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: String
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: String
+
+  """Included in the specified list."""
+  in: [String!]
+
+  """Not included in the specified list."""
+  notIn: [String!]
+
+  """Less than the specified value."""
+  lessThan: String
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: String
+
+  """Greater than the specified value."""
+  greaterThan: String
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: String
+
+  """Contains the specified string (case-sensitive)."""
+  includes: String
+
+  """Does not contain the specified string (case-sensitive)."""
+  notIncludes: String
+
+  """Contains the specified string (case-insensitive)."""
+  includesInsensitive: String
+
+  """Does not contain the specified string (case-insensitive)."""
+  notIncludesInsensitive: String
+
+  """Starts with the specified string (case-sensitive)."""
+  startsWith: String
+
+  """Does not start with the specified string (case-sensitive)."""
+  notStartsWith: String
+
+  """Starts with the specified string (case-insensitive)."""
+  startsWithInsensitive: String
+
+  """Does not start with the specified string (case-insensitive)."""
+  notStartsWithInsensitive: String
+
+  """Ends with the specified string (case-sensitive)."""
+  endsWith: String
+
+  """Does not end with the specified string (case-sensitive)."""
+  notEndsWith: String
+
+  """Ends with the specified string (case-insensitive)."""
+  endsWithInsensitive: String
+
+  """Does not end with the specified string (case-insensitive)."""
+  notEndsWithInsensitive: String
+
+  """
+  Matches the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  like: String
+
+  """
+  Does not match the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLike: String
+
+  """
+  Matches the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  likeInsensitive: String
+
+  """
+  Does not match the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLikeInsensitive: String
+
+  """Equal to the specified value (case-insensitive)."""
+  equalToInsensitive: String
+
+  """Not equal to the specified value (case-insensitive)."""
+  notEqualToInsensitive: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  distinctFromInsensitive: String
+
+  """
+  Equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  notDistinctFromInsensitive: String
+
+  """Included in the specified list (case-insensitive)."""
+  inInsensitive: [String!]
+
+  """Not included in the specified list (case-insensitive)."""
+  notInInsensitive: [String!]
+
+  """Less than the specified value (case-insensitive)."""
+  lessThanInsensitive: String
+
+  """Less than or equal to the specified value (case-insensitive)."""
+  lessThanOrEqualToInsensitive: String
+
+  """Greater than the specified value (case-insensitive)."""
+  greaterThanInsensitive: String
+
+  """Greater than or equal to the specified value (case-insensitive)."""
+  greaterThanOrEqualToInsensitive: String
+}
+
+"""All input for the \`updateJobById\` mutation."""
+input UpdateJobByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the \`Job\` being updated.
+  """
+  jobPatch: JobPatch!
+  id: Int!
+}
+
+"""All input for the \`updateJob\` mutation."""
+input UpdateJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Job\` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the \`Job\` being updated.
+  """
+  jobPatch: JobPatch!
+}
+
+"""The output of our update \`Job\` mutation."""
+type UpdateJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was updated by this mutation."""
+  job: Job
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
 `;
 
 exports[`querying rank without filter works 1`] = `
-GraphQLSchema {
-  "__validationErrors": [],
-  "_directives": [
-    "@include",
-    "@skip",
-    "@deprecated",
-    "@specifiedBy",
-  ],
-  "_implementationsMap": {
-    "Node": {
-      "interfaces": [],
-      "objects": [
-        "Query",
-        "Job",
-      ],
-    },
-  },
-  "_mutationType": "Mutation",
-  "_queryType": "Query",
-  "_subTypeMap": {},
-  "_subscriptionType": undefined,
-  "_typeMap": {
-    "Boolean": "Boolean",
-    "CreateJobInput": "CreateJobInput",
-    "CreateJobPayload": "CreateJobPayload",
-    "Cursor": "Cursor",
-    "DeleteJobByIdInput": "DeleteJobByIdInput",
-    "DeleteJobInput": "DeleteJobInput",
-    "DeleteJobPayload": "DeleteJobPayload",
-    "Float": "Float",
-    "FullText": "FullText",
-    "FullTextFilter": "FullTextFilter",
-    "ID": "ID",
-    "Int": "Int",
-    "IntFilter": "IntFilter",
-    "Job": "Job",
-    "JobCondition": "JobCondition",
-    "JobFilter": "JobFilter",
-    "JobInput": "JobInput",
-    "JobPatch": "JobPatch",
-    "JobsConnection": "JobsConnection",
-    "JobsEdge": "JobsEdge",
-    "JobsOrderBy": "JobsOrderBy",
-    "Mutation": "Mutation",
-    "Node": "Node",
-    "PageInfo": "PageInfo",
-    "Query": "Query",
-    "String": "String",
-    "StringFilter": "StringFilter",
-    "UpdateJobByIdInput": "UpdateJobByIdInput",
-    "UpdateJobInput": "UpdateJobInput",
-    "UpdateJobPayload": "UpdateJobPayload",
-    "__Directive": "__Directive",
-    "__DirectiveLocation": "__DirectiveLocation",
-    "__EnumValue": "__EnumValue",
-    "__Field": "__Field",
-    "__InputValue": "__InputValue",
-    "__Schema": "__Schema",
-    "__Type": "__Type",
-    "__TypeKind": "__TypeKind",
-  },
-  "astNode": undefined,
-  "description": undefined,
-  "extensionASTNodes": undefined,
-  "extensions": undefined,
+"""All input for the create \`Job\` mutation."""
+input CreateJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The \`Job\` to be created by this mutation."""
+  job: JobInput!
 }
+
+"""The output of our create \`Job\` mutation."""
+type CreateJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was created by this mutation."""
+  job: Job
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
+"""A location in a connection that can be used for resuming pagination."""
+scalar Cursor
+
+"""All input for the \`deleteJobById\` mutation."""
+input DeleteJobByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: Int!
+}
+
+"""All input for the \`deleteJob\` mutation."""
+input DeleteJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Job\` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""The output of our delete \`Job\` mutation."""
+type DeleteJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was deleted by this mutation."""
+  job: Job
+  deletedJobId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
+scalar FullText
+
+"""
+A filter to be used against FullText fields. All fields are combined with a logical ‘and.’
+"""
+input FullTextFilter {
+  """Performs a full text search on the field."""
+  matches: String
+}
+
+"""
+A filter to be used against Int fields. All fields are combined with a logical ‘and.’
+"""
+input IntFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: Int
+
+  """Not equal to the specified value."""
+  notEqualTo: Int
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Int
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Int
+
+  """Included in the specified list."""
+  in: [Int!]
+
+  """Not included in the specified list."""
+  notIn: [Int!]
+
+  """Less than the specified value."""
+  lessThan: Int
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Int
+
+  """Greater than the specified value."""
+  greaterThan: Int
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Int
+}
+
+type Job implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: Int!
+  name: String!
+  fullText: FullText
+
+  """Full-text search ranking when filtered by \`fullText\`."""
+  fullTextRank: Float
+}
+
+"""
+A condition to be used against \`Job\` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input JobCondition {
+  """Checks for equality with the object’s \`id\` field."""
+  id: Int
+
+  """Checks for equality with the object’s \`name\` field."""
+  name: String
+
+  """Checks for equality with the object’s \`fullText\` field."""
+  fullText: FullText
+}
+
+"""
+A filter to be used against \`Job\` object types. All fields are combined with a logical ‘and.’
+"""
+input JobFilter {
+  """Filter by the object’s \`id\` field."""
+  id: IntFilter
+
+  """Filter by the object’s \`name\` field."""
+  name: StringFilter
+
+  """Filter by the object’s \`fullText\` field."""
+  fullText: FullTextFilter
+
+  """Checks for all expressions in this list."""
+  and: [JobFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [JobFilter!]
+
+  """Negates the expression."""
+  not: JobFilter
+}
+
+"""An input for mutations affecting \`Job\`"""
+input JobInput {
+  id: Int
+  name: String!
+  fullText: FullText
+}
+
+"""Represents an update to a \`Job\`. Fields that are set will be updated."""
+input JobPatch {
+  id: Int
+  name: String
+  fullText: FullText
+}
+
+"""A connection to a list of \`Job\` values."""
+type JobsConnection {
+  """A list of \`Job\` objects."""
+  nodes: [Job]!
+
+  """
+  A list of edges which contains the \`Job\` and cursor to aid in pagination.
+  """
+  edges: [JobsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* \`Job\` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A \`Job\` edge in the connection."""
+type JobsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The \`Job\` at the end of the edge."""
+  node: Job
+}
+
+"""Methods to use when ordering \`Job\`."""
+enum JobsOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  NAME_ASC
+  NAME_DESC
+  FULL_TEXT_ASC
+  FULL_TEXT_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  FULL_TEXT_RANK_ASC
+  FULL_TEXT_RANK_DESC
+}
+
+"""
+The root mutation type which contains root level fields which mutate data.
+"""
+type Mutation {
+  """Creates a single \`Job\`."""
+  createJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateJobInput!
+  ): CreateJobPayload
+
+  """Updates a single \`Job\` using its globally unique id and a patch."""
+  updateJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateJobInput!
+  ): UpdateJobPayload
+
+  """Updates a single \`Job\` using a unique key and a patch."""
+  updateJobById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateJobByIdInput!
+  ): UpdateJobPayload
+
+  """Deletes a single \`Job\` using its globally unique id."""
+  deleteJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteJobInput!
+  ): DeleteJobPayload
+
+  """Deletes a single \`Job\` using a unique key."""
+  deleteJobById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteJobByIdInput!
+  ): DeleteJobPayload
+}
+
+"""An object with a globally unique \`ID\`."""
+interface Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+}
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: Cursor
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: Cursor
+}
+
+"""The root query type which gives access points into the data universe."""
+type Query implements Node {
+  """
+  Exposes the root query type nested one level down. This is helpful for Relay 1
+  which can only query top level fields if they are in a particular form.
+  """
+  query: Query!
+
+  """
+  The root query type must be a \`Node\` to work well with Relay 1 mutations. This just resolves to \`query\`.
+  """
+  nodeId: ID!
+
+  """Fetches an object given its globally unique \`ID\`."""
+  node(
+    """The globally unique \`ID\`."""
+    nodeId: ID!
+  ): Node
+
+  """Reads and enables pagination through a set of \`Job\`."""
+  allJobs(
+    """Only read the first \`n\` values of the set."""
+    first: Int
+
+    """Only read the last \`n\` values of the set."""
+    last: Int
+
+    """
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: JobCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: JobFilter
+  ): JobsConnection
+  jobById(id: Int!): Job
+
+  """Reads a single \`Job\` using its globally unique \`ID\`."""
+  job(
+    """The globally unique \`ID\` to be used in selecting a single \`Job\`."""
+    nodeId: ID!
+  ): Job
+}
+
+"""
+A filter to be used against String fields. All fields are combined with a logical ‘and.’
+"""
+input StringFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: String
+
+  """Not equal to the specified value."""
+  notEqualTo: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: String
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: String
+
+  """Included in the specified list."""
+  in: [String!]
+
+  """Not included in the specified list."""
+  notIn: [String!]
+
+  """Less than the specified value."""
+  lessThan: String
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: String
+
+  """Greater than the specified value."""
+  greaterThan: String
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: String
+
+  """Contains the specified string (case-sensitive)."""
+  includes: String
+
+  """Does not contain the specified string (case-sensitive)."""
+  notIncludes: String
+
+  """Contains the specified string (case-insensitive)."""
+  includesInsensitive: String
+
+  """Does not contain the specified string (case-insensitive)."""
+  notIncludesInsensitive: String
+
+  """Starts with the specified string (case-sensitive)."""
+  startsWith: String
+
+  """Does not start with the specified string (case-sensitive)."""
+  notStartsWith: String
+
+  """Starts with the specified string (case-insensitive)."""
+  startsWithInsensitive: String
+
+  """Does not start with the specified string (case-insensitive)."""
+  notStartsWithInsensitive: String
+
+  """Ends with the specified string (case-sensitive)."""
+  endsWith: String
+
+  """Does not end with the specified string (case-sensitive)."""
+  notEndsWith: String
+
+  """Ends with the specified string (case-insensitive)."""
+  endsWithInsensitive: String
+
+  """Does not end with the specified string (case-insensitive)."""
+  notEndsWithInsensitive: String
+
+  """
+  Matches the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  like: String
+
+  """
+  Does not match the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLike: String
+
+  """
+  Matches the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  likeInsensitive: String
+
+  """
+  Does not match the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLikeInsensitive: String
+
+  """Equal to the specified value (case-insensitive)."""
+  equalToInsensitive: String
+
+  """Not equal to the specified value (case-insensitive)."""
+  notEqualToInsensitive: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  distinctFromInsensitive: String
+
+  """
+  Equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  notDistinctFromInsensitive: String
+
+  """Included in the specified list (case-insensitive)."""
+  inInsensitive: [String!]
+
+  """Not included in the specified list (case-insensitive)."""
+  notInInsensitive: [String!]
+
+  """Less than the specified value (case-insensitive)."""
+  lessThanInsensitive: String
+
+  """Less than or equal to the specified value (case-insensitive)."""
+  lessThanOrEqualToInsensitive: String
+
+  """Greater than the specified value (case-insensitive)."""
+  greaterThanInsensitive: String
+
+  """Greater than or equal to the specified value (case-insensitive)."""
+  greaterThanOrEqualToInsensitive: String
+}
+
+"""All input for the \`updateJobById\` mutation."""
+input UpdateJobByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the \`Job\` being updated.
+  """
+  jobPatch: JobPatch!
+  id: Int!
+}
+
+"""All input for the \`updateJob\` mutation."""
+input UpdateJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Job\` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the \`Job\` being updated.
+  """
+  jobPatch: JobPatch!
+}
+
+"""The output of our update \`Job\` mutation."""
+type UpdateJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was updated by this mutation."""
+  job: Job
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
 `;
 
 exports[`sort by full text rank field works 1`] = `
-GraphQLSchema {
-  "__validationErrors": [],
-  "_directives": [
-    "@include",
-    "@skip",
-    "@deprecated",
-    "@specifiedBy",
-  ],
-  "_implementationsMap": {
-    "Node": {
-      "interfaces": [],
-      "objects": [
-        "Query",
-        "Job",
-      ],
-    },
-  },
-  "_mutationType": "Mutation",
-  "_queryType": "Query",
-  "_subTypeMap": {},
-  "_subscriptionType": undefined,
-  "_typeMap": {
-    "Boolean": "Boolean",
-    "CreateJobInput": "CreateJobInput",
-    "CreateJobPayload": "CreateJobPayload",
-    "Cursor": "Cursor",
-    "DeleteJobByIdInput": "DeleteJobByIdInput",
-    "DeleteJobInput": "DeleteJobInput",
-    "DeleteJobPayload": "DeleteJobPayload",
-    "Float": "Float",
-    "FullText": "FullText",
-    "FullTextFilter": "FullTextFilter",
-    "ID": "ID",
-    "Int": "Int",
-    "IntFilter": "IntFilter",
-    "Job": "Job",
-    "JobCondition": "JobCondition",
-    "JobFilter": "JobFilter",
-    "JobInput": "JobInput",
-    "JobPatch": "JobPatch",
-    "JobsConnection": "JobsConnection",
-    "JobsEdge": "JobsEdge",
-    "JobsOrderBy": "JobsOrderBy",
-    "Mutation": "Mutation",
-    "Node": "Node",
-    "PageInfo": "PageInfo",
-    "Query": "Query",
-    "String": "String",
-    "StringFilter": "StringFilter",
-    "UpdateJobByIdInput": "UpdateJobByIdInput",
-    "UpdateJobInput": "UpdateJobInput",
-    "UpdateJobPayload": "UpdateJobPayload",
-    "__Directive": "__Directive",
-    "__DirectiveLocation": "__DirectiveLocation",
-    "__EnumValue": "__EnumValue",
-    "__Field": "__Field",
-    "__InputValue": "__InputValue",
-    "__Schema": "__Schema",
-    "__Type": "__Type",
-    "__TypeKind": "__TypeKind",
-  },
-  "astNode": undefined,
-  "description": undefined,
-  "extensionASTNodes": undefined,
-  "extensions": undefined,
+"""All input for the create \`Job\` mutation."""
+input CreateJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The \`Job\` to be created by this mutation."""
+  job: JobInput!
 }
+
+"""The output of our create \`Job\` mutation."""
+type CreateJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was created by this mutation."""
+  job: Job
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
+"""A location in a connection that can be used for resuming pagination."""
+scalar Cursor
+
+"""All input for the \`deleteJobById\` mutation."""
+input DeleteJobByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: Int!
+}
+
+"""All input for the \`deleteJob\` mutation."""
+input DeleteJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Job\` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""The output of our delete \`Job\` mutation."""
+type DeleteJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was deleted by this mutation."""
+  job: Job
+  deletedJobId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
+scalar FullText
+
+"""
+A filter to be used against FullText fields. All fields are combined with a logical ‘and.’
+"""
+input FullTextFilter {
+  """Performs a full text search on the field."""
+  matches: String
+}
+
+"""
+A filter to be used against Int fields. All fields are combined with a logical ‘and.’
+"""
+input IntFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: Int
+
+  """Not equal to the specified value."""
+  notEqualTo: Int
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Int
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Int
+
+  """Included in the specified list."""
+  in: [Int!]
+
+  """Not included in the specified list."""
+  notIn: [Int!]
+
+  """Less than the specified value."""
+  lessThan: Int
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Int
+
+  """Greater than the specified value."""
+  greaterThan: Int
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Int
+}
+
+type Job implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: Int!
+  name: String!
+  fullText: FullText
+
+  """Full-text search ranking when filtered by \`fullText\`."""
+  fullTextRank: Float
+}
+
+"""
+A condition to be used against \`Job\` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input JobCondition {
+  """Checks for equality with the object’s \`id\` field."""
+  id: Int
+
+  """Checks for equality with the object’s \`name\` field."""
+  name: String
+
+  """Checks for equality with the object’s \`fullText\` field."""
+  fullText: FullText
+}
+
+"""
+A filter to be used against \`Job\` object types. All fields are combined with a logical ‘and.’
+"""
+input JobFilter {
+  """Filter by the object’s \`id\` field."""
+  id: IntFilter
+
+  """Filter by the object’s \`name\` field."""
+  name: StringFilter
+
+  """Filter by the object’s \`fullText\` field."""
+  fullText: FullTextFilter
+
+  """Checks for all expressions in this list."""
+  and: [JobFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [JobFilter!]
+
+  """Negates the expression."""
+  not: JobFilter
+}
+
+"""An input for mutations affecting \`Job\`"""
+input JobInput {
+  id: Int
+  name: String!
+  fullText: FullText
+}
+
+"""Represents an update to a \`Job\`. Fields that are set will be updated."""
+input JobPatch {
+  id: Int
+  name: String
+  fullText: FullText
+}
+
+"""A connection to a list of \`Job\` values."""
+type JobsConnection {
+  """A list of \`Job\` objects."""
+  nodes: [Job]!
+
+  """
+  A list of edges which contains the \`Job\` and cursor to aid in pagination.
+  """
+  edges: [JobsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* \`Job\` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A \`Job\` edge in the connection."""
+type JobsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The \`Job\` at the end of the edge."""
+  node: Job
+}
+
+"""Methods to use when ordering \`Job\`."""
+enum JobsOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  NAME_ASC
+  NAME_DESC
+  FULL_TEXT_ASC
+  FULL_TEXT_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  FULL_TEXT_RANK_ASC
+  FULL_TEXT_RANK_DESC
+}
+
+"""
+The root mutation type which contains root level fields which mutate data.
+"""
+type Mutation {
+  """Creates a single \`Job\`."""
+  createJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateJobInput!
+  ): CreateJobPayload
+
+  """Updates a single \`Job\` using its globally unique id and a patch."""
+  updateJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateJobInput!
+  ): UpdateJobPayload
+
+  """Updates a single \`Job\` using a unique key and a patch."""
+  updateJobById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateJobByIdInput!
+  ): UpdateJobPayload
+
+  """Deletes a single \`Job\` using its globally unique id."""
+  deleteJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteJobInput!
+  ): DeleteJobPayload
+
+  """Deletes a single \`Job\` using a unique key."""
+  deleteJobById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteJobByIdInput!
+  ): DeleteJobPayload
+}
+
+"""An object with a globally unique \`ID\`."""
+interface Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+}
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: Cursor
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: Cursor
+}
+
+"""The root query type which gives access points into the data universe."""
+type Query implements Node {
+  """
+  Exposes the root query type nested one level down. This is helpful for Relay 1
+  which can only query top level fields if they are in a particular form.
+  """
+  query: Query!
+
+  """
+  The root query type must be a \`Node\` to work well with Relay 1 mutations. This just resolves to \`query\`.
+  """
+  nodeId: ID!
+
+  """Fetches an object given its globally unique \`ID\`."""
+  node(
+    """The globally unique \`ID\`."""
+    nodeId: ID!
+  ): Node
+
+  """Reads and enables pagination through a set of \`Job\`."""
+  allJobs(
+    """Only read the first \`n\` values of the set."""
+    first: Int
+
+    """Only read the last \`n\` values of the set."""
+    last: Int
+
+    """
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: JobCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: JobFilter
+  ): JobsConnection
+  jobById(id: Int!): Job
+
+  """Reads a single \`Job\` using its globally unique \`ID\`."""
+  job(
+    """The globally unique \`ID\` to be used in selecting a single \`Job\`."""
+    nodeId: ID!
+  ): Job
+}
+
+"""
+A filter to be used against String fields. All fields are combined with a logical ‘and.’
+"""
+input StringFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: String
+
+  """Not equal to the specified value."""
+  notEqualTo: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: String
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: String
+
+  """Included in the specified list."""
+  in: [String!]
+
+  """Not included in the specified list."""
+  notIn: [String!]
+
+  """Less than the specified value."""
+  lessThan: String
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: String
+
+  """Greater than the specified value."""
+  greaterThan: String
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: String
+
+  """Contains the specified string (case-sensitive)."""
+  includes: String
+
+  """Does not contain the specified string (case-sensitive)."""
+  notIncludes: String
+
+  """Contains the specified string (case-insensitive)."""
+  includesInsensitive: String
+
+  """Does not contain the specified string (case-insensitive)."""
+  notIncludesInsensitive: String
+
+  """Starts with the specified string (case-sensitive)."""
+  startsWith: String
+
+  """Does not start with the specified string (case-sensitive)."""
+  notStartsWith: String
+
+  """Starts with the specified string (case-insensitive)."""
+  startsWithInsensitive: String
+
+  """Does not start with the specified string (case-insensitive)."""
+  notStartsWithInsensitive: String
+
+  """Ends with the specified string (case-sensitive)."""
+  endsWith: String
+
+  """Does not end with the specified string (case-sensitive)."""
+  notEndsWith: String
+
+  """Ends with the specified string (case-insensitive)."""
+  endsWithInsensitive: String
+
+  """Does not end with the specified string (case-insensitive)."""
+  notEndsWithInsensitive: String
+
+  """
+  Matches the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  like: String
+
+  """
+  Does not match the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLike: String
+
+  """
+  Matches the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  likeInsensitive: String
+
+  """
+  Does not match the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLikeInsensitive: String
+
+  """Equal to the specified value (case-insensitive)."""
+  equalToInsensitive: String
+
+  """Not equal to the specified value (case-insensitive)."""
+  notEqualToInsensitive: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  distinctFromInsensitive: String
+
+  """
+  Equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  notDistinctFromInsensitive: String
+
+  """Included in the specified list (case-insensitive)."""
+  inInsensitive: [String!]
+
+  """Not included in the specified list (case-insensitive)."""
+  notInInsensitive: [String!]
+
+  """Less than the specified value (case-insensitive)."""
+  lessThanInsensitive: String
+
+  """Less than or equal to the specified value (case-insensitive)."""
+  lessThanOrEqualToInsensitive: String
+
+  """Greater than the specified value (case-insensitive)."""
+  greaterThanInsensitive: String
+
+  """Greater than or equal to the specified value (case-insensitive)."""
+  greaterThanOrEqualToInsensitive: String
+}
+
+"""All input for the \`updateJobById\` mutation."""
+input UpdateJobByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the \`Job\` being updated.
+  """
+  jobPatch: JobPatch!
+  id: Int!
+}
+
+"""All input for the \`updateJob\` mutation."""
+input UpdateJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Job\` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the \`Job\` being updated.
+  """
+  jobPatch: JobPatch!
+}
+
+"""The output of our update \`Job\` mutation."""
+type UpdateJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was updated by this mutation."""
+  job: Job
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
 `;
 
 exports[`table with unfiltered full-text field works 1`] = `
-GraphQLSchema {
-  "__validationErrors": [],
-  "_directives": [
-    "@include",
-    "@skip",
-    "@deprecated",
-    "@specifiedBy",
-  ],
-  "_implementationsMap": {
-    "Node": {
-      "interfaces": [],
-      "objects": [
-        "Query",
-        "Job",
-      ],
-    },
-  },
-  "_mutationType": "Mutation",
-  "_queryType": "Query",
-  "_subTypeMap": {},
-  "_subscriptionType": undefined,
-  "_typeMap": {
-    "Boolean": "Boolean",
-    "CreateJobInput": "CreateJobInput",
-    "CreateJobPayload": "CreateJobPayload",
-    "Cursor": "Cursor",
-    "DeleteJobByIdInput": "DeleteJobByIdInput",
-    "DeleteJobInput": "DeleteJobInput",
-    "DeleteJobPayload": "DeleteJobPayload",
-    "Float": "Float",
-    "FullText": "FullText",
-    "FullTextFilter": "FullTextFilter",
-    "ID": "ID",
-    "Int": "Int",
-    "IntFilter": "IntFilter",
-    "Job": "Job",
-    "JobCondition": "JobCondition",
-    "JobFilter": "JobFilter",
-    "JobInput": "JobInput",
-    "JobPatch": "JobPatch",
-    "JobsConnection": "JobsConnection",
-    "JobsEdge": "JobsEdge",
-    "JobsOrderBy": "JobsOrderBy",
-    "Mutation": "Mutation",
-    "Node": "Node",
-    "PageInfo": "PageInfo",
-    "Query": "Query",
-    "String": "String",
-    "StringFilter": "StringFilter",
-    "UpdateJobByIdInput": "UpdateJobByIdInput",
-    "UpdateJobInput": "UpdateJobInput",
-    "UpdateJobPayload": "UpdateJobPayload",
-    "__Directive": "__Directive",
-    "__DirectiveLocation": "__DirectiveLocation",
-    "__EnumValue": "__EnumValue",
-    "__Field": "__Field",
-    "__InputValue": "__InputValue",
-    "__Schema": "__Schema",
-    "__Type": "__Type",
-    "__TypeKind": "__TypeKind",
-  },
-  "astNode": undefined,
-  "description": undefined,
-  "extensionASTNodes": undefined,
-  "extensions": undefined,
+"""All input for the create \`Job\` mutation."""
+input CreateJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The \`Job\` to be created by this mutation."""
+  job: JobInput!
 }
+
+"""The output of our create \`Job\` mutation."""
+type CreateJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was created by this mutation."""
+  job: Job
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
+"""A location in a connection that can be used for resuming pagination."""
+scalar Cursor
+
+"""All input for the \`deleteJobById\` mutation."""
+input DeleteJobByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: Int!
+}
+
+"""All input for the \`deleteJob\` mutation."""
+input DeleteJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Job\` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""The output of our delete \`Job\` mutation."""
+type DeleteJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was deleted by this mutation."""
+  job: Job
+  deletedJobId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
+scalar FullText
+
+"""
+A filter to be used against FullText fields. All fields are combined with a logical ‘and.’
+"""
+input FullTextFilter {
+  """Performs a full text search on the field."""
+  matches: String
+}
+
+"""
+A filter to be used against Int fields. All fields are combined with a logical ‘and.’
+"""
+input IntFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: Int
+
+  """Not equal to the specified value."""
+  notEqualTo: Int
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Int
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Int
+
+  """Included in the specified list."""
+  in: [Int!]
+
+  """Not included in the specified list."""
+  notIn: [Int!]
+
+  """Less than the specified value."""
+  lessThan: Int
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Int
+
+  """Greater than the specified value."""
+  greaterThan: Int
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Int
+}
+
+type Job implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: Int!
+  name: String!
+  fullText: FullText
+
+  """Full-text search ranking when filtered by \`fullText\`."""
+  fullTextRank: Float
+}
+
+"""
+A condition to be used against \`Job\` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input JobCondition {
+  """Checks for equality with the object’s \`id\` field."""
+  id: Int
+
+  """Checks for equality with the object’s \`name\` field."""
+  name: String
+
+  """Checks for equality with the object’s \`fullText\` field."""
+  fullText: FullText
+}
+
+"""
+A filter to be used against \`Job\` object types. All fields are combined with a logical ‘and.’
+"""
+input JobFilter {
+  """Filter by the object’s \`id\` field."""
+  id: IntFilter
+
+  """Filter by the object’s \`name\` field."""
+  name: StringFilter
+
+  """Filter by the object’s \`fullText\` field."""
+  fullText: FullTextFilter
+
+  """Checks for all expressions in this list."""
+  and: [JobFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [JobFilter!]
+
+  """Negates the expression."""
+  not: JobFilter
+}
+
+"""An input for mutations affecting \`Job\`"""
+input JobInput {
+  id: Int
+  name: String!
+  fullText: FullText
+}
+
+"""Represents an update to a \`Job\`. Fields that are set will be updated."""
+input JobPatch {
+  id: Int
+  name: String
+  fullText: FullText
+}
+
+"""A connection to a list of \`Job\` values."""
+type JobsConnection {
+  """A list of \`Job\` objects."""
+  nodes: [Job]!
+
+  """
+  A list of edges which contains the \`Job\` and cursor to aid in pagination.
+  """
+  edges: [JobsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* \`Job\` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A \`Job\` edge in the connection."""
+type JobsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The \`Job\` at the end of the edge."""
+  node: Job
+}
+
+"""Methods to use when ordering \`Job\`."""
+enum JobsOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  NAME_ASC
+  NAME_DESC
+  FULL_TEXT_ASC
+  FULL_TEXT_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  FULL_TEXT_RANK_ASC
+  FULL_TEXT_RANK_DESC
+}
+
+"""
+The root mutation type which contains root level fields which mutate data.
+"""
+type Mutation {
+  """Creates a single \`Job\`."""
+  createJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateJobInput!
+  ): CreateJobPayload
+
+  """Updates a single \`Job\` using its globally unique id and a patch."""
+  updateJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateJobInput!
+  ): UpdateJobPayload
+
+  """Updates a single \`Job\` using a unique key and a patch."""
+  updateJobById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateJobByIdInput!
+  ): UpdateJobPayload
+
+  """Deletes a single \`Job\` using its globally unique id."""
+  deleteJob(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteJobInput!
+  ): DeleteJobPayload
+
+  """Deletes a single \`Job\` using a unique key."""
+  deleteJobById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteJobByIdInput!
+  ): DeleteJobPayload
+}
+
+"""An object with a globally unique \`ID\`."""
+interface Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+}
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: Cursor
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: Cursor
+}
+
+"""The root query type which gives access points into the data universe."""
+type Query implements Node {
+  """
+  Exposes the root query type nested one level down. This is helpful for Relay 1
+  which can only query top level fields if they are in a particular form.
+  """
+  query: Query!
+
+  """
+  The root query type must be a \`Node\` to work well with Relay 1 mutations. This just resolves to \`query\`.
+  """
+  nodeId: ID!
+
+  """Fetches an object given its globally unique \`ID\`."""
+  node(
+    """The globally unique \`ID\`."""
+    nodeId: ID!
+  ): Node
+
+  """Reads and enables pagination through a set of \`Job\`."""
+  allJobs(
+    """Only read the first \`n\` values of the set."""
+    first: Int
+
+    """Only read the last \`n\` values of the set."""
+    last: Int
+
+    """
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: JobCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: JobFilter
+  ): JobsConnection
+  jobById(id: Int!): Job
+
+  """Reads a single \`Job\` using its globally unique \`ID\`."""
+  job(
+    """The globally unique \`ID\` to be used in selecting a single \`Job\`."""
+    nodeId: ID!
+  ): Job
+}
+
+"""
+A filter to be used against String fields. All fields are combined with a logical ‘and.’
+"""
+input StringFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: String
+
+  """Not equal to the specified value."""
+  notEqualTo: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: String
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: String
+
+  """Included in the specified list."""
+  in: [String!]
+
+  """Not included in the specified list."""
+  notIn: [String!]
+
+  """Less than the specified value."""
+  lessThan: String
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: String
+
+  """Greater than the specified value."""
+  greaterThan: String
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: String
+
+  """Contains the specified string (case-sensitive)."""
+  includes: String
+
+  """Does not contain the specified string (case-sensitive)."""
+  notIncludes: String
+
+  """Contains the specified string (case-insensitive)."""
+  includesInsensitive: String
+
+  """Does not contain the specified string (case-insensitive)."""
+  notIncludesInsensitive: String
+
+  """Starts with the specified string (case-sensitive)."""
+  startsWith: String
+
+  """Does not start with the specified string (case-sensitive)."""
+  notStartsWith: String
+
+  """Starts with the specified string (case-insensitive)."""
+  startsWithInsensitive: String
+
+  """Does not start with the specified string (case-insensitive)."""
+  notStartsWithInsensitive: String
+
+  """Ends with the specified string (case-sensitive)."""
+  endsWith: String
+
+  """Does not end with the specified string (case-sensitive)."""
+  notEndsWith: String
+
+  """Ends with the specified string (case-insensitive)."""
+  endsWithInsensitive: String
+
+  """Does not end with the specified string (case-insensitive)."""
+  notEndsWithInsensitive: String
+
+  """
+  Matches the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  like: String
+
+  """
+  Does not match the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLike: String
+
+  """
+  Matches the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  likeInsensitive: String
+
+  """
+  Does not match the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLikeInsensitive: String
+
+  """Equal to the specified value (case-insensitive)."""
+  equalToInsensitive: String
+
+  """Not equal to the specified value (case-insensitive)."""
+  notEqualToInsensitive: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  distinctFromInsensitive: String
+
+  """
+  Equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  notDistinctFromInsensitive: String
+
+  """Included in the specified list (case-insensitive)."""
+  inInsensitive: [String!]
+
+  """Not included in the specified list (case-insensitive)."""
+  notInInsensitive: [String!]
+
+  """Less than the specified value (case-insensitive)."""
+  lessThanInsensitive: String
+
+  """Less than or equal to the specified value (case-insensitive)."""
+  lessThanOrEqualToInsensitive: String
+
+  """Greater than the specified value (case-insensitive)."""
+  greaterThanInsensitive: String
+
+  """Greater than or equal to the specified value (case-insensitive)."""
+  greaterThanOrEqualToInsensitive: String
+}
+
+"""All input for the \`updateJobById\` mutation."""
+input UpdateJobByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the \`Job\` being updated.
+  """
+  jobPatch: JobPatch!
+  id: Int!
+}
+
+"""All input for the \`updateJob\` mutation."""
+input UpdateJobInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Job\` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the \`Job\` being updated.
+  """
+  jobPatch: JobPatch!
+}
+
+"""The output of our update \`Job\` mutation."""
+type UpdateJobPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Job\` that was updated by this mutation."""
+  job: Job
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Job\`. May be used by Relay 1."""
+  jobEdge(
+    """The method to use when ordering \`Job\`."""
+    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): JobsEdge
+}
+
 `;
 
 exports[`works with connectionFilterRelations 1`] = `
-GraphQLSchema {
-  "__validationErrors": [],
-  "_directives": [
-    "@include",
-    "@skip",
-    "@deprecated",
-    "@specifiedBy",
-  ],
-  "_implementationsMap": {
-    "Node": {
-      "interfaces": [],
-      "objects": [
-        "Query",
-        "Client",
-        "Order",
-      ],
-    },
-  },
-  "_mutationType": "Mutation",
-  "_queryType": "Query",
-  "_subTypeMap": {},
-  "_subscriptionType": undefined,
-  "_typeMap": {
-    "Boolean": "Boolean",
-    "Client": "Client",
-    "ClientCondition": "ClientCondition",
-    "ClientFilter": "ClientFilter",
-    "ClientInput": "ClientInput",
-    "ClientPatch": "ClientPatch",
-    "ClientToManyOrderFilter": "ClientToManyOrderFilter",
-    "ClientsConnection": "ClientsConnection",
-    "ClientsEdge": "ClientsEdge",
-    "ClientsOrderBy": "ClientsOrderBy",
-    "CreateClientInput": "CreateClientInput",
-    "CreateClientPayload": "CreateClientPayload",
-    "CreateOrderInput": "CreateOrderInput",
-    "CreateOrderPayload": "CreateOrderPayload",
-    "Cursor": "Cursor",
-    "DeleteClientByIdInput": "DeleteClientByIdInput",
-    "DeleteClientInput": "DeleteClientInput",
-    "DeleteClientPayload": "DeleteClientPayload",
-    "DeleteOrderByIdInput": "DeleteOrderByIdInput",
-    "DeleteOrderInput": "DeleteOrderInput",
-    "DeleteOrderPayload": "DeleteOrderPayload",
-    "Float": "Float",
-    "FullText": "FullText",
-    "FullTextFilter": "FullTextFilter",
-    "ID": "ID",
-    "Int": "Int",
-    "IntFilter": "IntFilter",
-    "Mutation": "Mutation",
-    "Node": "Node",
-    "Order": "Order",
-    "OrderCondition": "OrderCondition",
-    "OrderFilter": "OrderFilter",
-    "OrderInput": "OrderInput",
-    "OrderPatch": "OrderPatch",
-    "OrdersConnection": "OrdersConnection",
-    "OrdersEdge": "OrdersEdge",
-    "OrdersOrderBy": "OrdersOrderBy",
-    "PageInfo": "PageInfo",
-    "Query": "Query",
-    "String": "String",
-    "StringFilter": "StringFilter",
-    "UpdateClientByIdInput": "UpdateClientByIdInput",
-    "UpdateClientInput": "UpdateClientInput",
-    "UpdateClientPayload": "UpdateClientPayload",
-    "UpdateOrderByIdInput": "UpdateOrderByIdInput",
-    "UpdateOrderInput": "UpdateOrderInput",
-    "UpdateOrderPayload": "UpdateOrderPayload",
-    "__Directive": "__Directive",
-    "__DirectiveLocation": "__DirectiveLocation",
-    "__EnumValue": "__EnumValue",
-    "__Field": "__Field",
-    "__InputValue": "__InputValue",
-    "__Schema": "__Schema",
-    "__Type": "__Type",
-    "__TypeKind": "__TypeKind",
-  },
-  "astNode": undefined,
-  "description": undefined,
-  "extensionASTNodes": undefined,
-  "extensions": undefined,
+type Client implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: Int!
+  comment: String
+  tsv: FullText
+
+  """Reads and enables pagination through a set of \`Order\`."""
+  ordersByClientId(
+    """Only read the first \`n\` values of the set."""
+    first: Int
+
+    """Only read the last \`n\` values of the set."""
+    last: Int
+
+    """
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering \`Order\`."""
+    orderBy: [OrdersOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: OrderCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: OrderFilter
+  ): OrdersConnection!
+
+  """Full-text search ranking when filtered by \`tsv\`."""
+  tsvRank: Float
 }
+
+"""
+A condition to be used against \`Client\` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input ClientCondition {
+  """Checks for equality with the object’s \`id\` field."""
+  id: Int
+
+  """Checks for equality with the object’s \`comment\` field."""
+  comment: String
+
+  """Checks for equality with the object’s \`tsv\` field."""
+  tsv: FullText
+}
+
+"""
+A filter to be used against \`Client\` object types. All fields are combined with a logical ‘and.’
+"""
+input ClientFilter {
+  """Filter by the object’s \`id\` field."""
+  id: IntFilter
+
+  """Filter by the object’s \`comment\` field."""
+  comment: StringFilter
+
+  """Filter by the object’s \`tsv\` field."""
+  tsv: FullTextFilter
+
+  """Filter by the object’s \`ordersByClientId\` relation."""
+  ordersByClientId: ClientToManyOrderFilter
+
+  """Some related \`ordersByClientId\` exist."""
+  ordersByClientIdExist: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [ClientFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [ClientFilter!]
+
+  """Negates the expression."""
+  not: ClientFilter
+}
+
+"""An input for mutations affecting \`Client\`"""
+input ClientInput {
+  id: Int
+  comment: String
+  tsv: FullText
+}
+
+"""
+Represents an update to a \`Client\`. Fields that are set will be updated.
+"""
+input ClientPatch {
+  id: Int
+  comment: String
+  tsv: FullText
+}
+
+"""
+A filter to be used against many \`Order\` object types. All fields are combined with a logical ‘and.’
+"""
+input ClientToManyOrderFilter {
+  """
+  Every related \`Order\` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: OrderFilter
+
+  """
+  Some related \`Order\` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: OrderFilter
+
+  """
+  No related \`Order\` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: OrderFilter
+}
+
+"""A connection to a list of \`Client\` values."""
+type ClientsConnection {
+  """A list of \`Client\` objects."""
+  nodes: [Client]!
+
+  """
+  A list of edges which contains the \`Client\` and cursor to aid in pagination.
+  """
+  edges: [ClientsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* \`Client\` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A \`Client\` edge in the connection."""
+type ClientsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The \`Client\` at the end of the edge."""
+  node: Client
+}
+
+"""Methods to use when ordering \`Client\`."""
+enum ClientsOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  COMMENT_ASC
+  COMMENT_DESC
+  TSV_ASC
+  TSV_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  TSV_RANK_ASC
+  TSV_RANK_DESC
+}
+
+"""All input for the create \`Client\` mutation."""
+input CreateClientInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The \`Client\` to be created by this mutation."""
+  client: ClientInput!
+}
+
+"""The output of our create \`Client\` mutation."""
+type CreateClientPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Client\` that was created by this mutation."""
+  client: Client
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Client\`. May be used by Relay 1."""
+  clientEdge(
+    """The method to use when ordering \`Client\`."""
+    orderBy: [ClientsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ClientsEdge
+}
+
+"""All input for the create \`Order\` mutation."""
+input CreateOrderInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The \`Order\` to be created by this mutation."""
+  order: OrderInput!
+}
+
+"""The output of our create \`Order\` mutation."""
+type CreateOrderPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Order\` that was created by this mutation."""
+  order: Order
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single \`Client\` that is related to this \`Order\`."""
+  clientByClientId: Client
+
+  """An edge for our \`Order\`. May be used by Relay 1."""
+  orderEdge(
+    """The method to use when ordering \`Order\`."""
+    orderBy: [OrdersOrderBy!] = [PRIMARY_KEY_ASC]
+  ): OrdersEdge
+}
+
+"""A location in a connection that can be used for resuming pagination."""
+scalar Cursor
+
+"""All input for the \`deleteClientById\` mutation."""
+input DeleteClientByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: Int!
+}
+
+"""All input for the \`deleteClient\` mutation."""
+input DeleteClientInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Client\` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""The output of our delete \`Client\` mutation."""
+type DeleteClientPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Client\` that was deleted by this mutation."""
+  client: Client
+  deletedClientId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Client\`. May be used by Relay 1."""
+  clientEdge(
+    """The method to use when ordering \`Client\`."""
+    orderBy: [ClientsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ClientsEdge
+}
+
+"""All input for the \`deleteOrderById\` mutation."""
+input DeleteOrderByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: Int!
+}
+
+"""All input for the \`deleteOrder\` mutation."""
+input DeleteOrderInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Order\` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""The output of our delete \`Order\` mutation."""
+type DeleteOrderPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Order\` that was deleted by this mutation."""
+  order: Order
+  deletedOrderId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single \`Client\` that is related to this \`Order\`."""
+  clientByClientId: Client
+
+  """An edge for our \`Order\`. May be used by Relay 1."""
+  orderEdge(
+    """The method to use when ordering \`Order\`."""
+    orderBy: [OrdersOrderBy!] = [PRIMARY_KEY_ASC]
+  ): OrdersEdge
+}
+
+scalar FullText
+
+"""
+A filter to be used against FullText fields. All fields are combined with a logical ‘and.’
+"""
+input FullTextFilter {
+  """Performs a full text search on the field."""
+  matches: String
+}
+
+"""
+A filter to be used against Int fields. All fields are combined with a logical ‘and.’
+"""
+input IntFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: Int
+
+  """Not equal to the specified value."""
+  notEqualTo: Int
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Int
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Int
+
+  """Included in the specified list."""
+  in: [Int!]
+
+  """Not included in the specified list."""
+  notIn: [Int!]
+
+  """Less than the specified value."""
+  lessThan: Int
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Int
+
+  """Greater than the specified value."""
+  greaterThan: Int
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Int
+}
+
+"""
+The root mutation type which contains root level fields which mutate data.
+"""
+type Mutation {
+  """Creates a single \`Client\`."""
+  createClient(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateClientInput!
+  ): CreateClientPayload
+
+  """Creates a single \`Order\`."""
+  createOrder(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateOrderInput!
+  ): CreateOrderPayload
+
+  """Updates a single \`Client\` using its globally unique id and a patch."""
+  updateClient(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateClientInput!
+  ): UpdateClientPayload
+
+  """Updates a single \`Client\` using a unique key and a patch."""
+  updateClientById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateClientByIdInput!
+  ): UpdateClientPayload
+
+  """Updates a single \`Order\` using its globally unique id and a patch."""
+  updateOrder(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateOrderInput!
+  ): UpdateOrderPayload
+
+  """Updates a single \`Order\` using a unique key and a patch."""
+  updateOrderById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateOrderByIdInput!
+  ): UpdateOrderPayload
+
+  """Deletes a single \`Client\` using its globally unique id."""
+  deleteClient(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteClientInput!
+  ): DeleteClientPayload
+
+  """Deletes a single \`Client\` using a unique key."""
+  deleteClientById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteClientByIdInput!
+  ): DeleteClientPayload
+
+  """Deletes a single \`Order\` using its globally unique id."""
+  deleteOrder(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteOrderInput!
+  ): DeleteOrderPayload
+
+  """Deletes a single \`Order\` using a unique key."""
+  deleteOrderById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteOrderByIdInput!
+  ): DeleteOrderPayload
+}
+
+"""An object with a globally unique \`ID\`."""
+interface Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+}
+
+type Order implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: Int!
+  clientId: Int
+  comment: String
+  tsv: FullText
+
+  """Reads a single \`Client\` that is related to this \`Order\`."""
+  clientByClientId: Client
+
+  """Full-text search ranking when filtered by \`tsv\`."""
+  tsvRank: Float
+}
+
+"""
+A condition to be used against \`Order\` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input OrderCondition {
+  """Checks for equality with the object’s \`id\` field."""
+  id: Int
+
+  """Checks for equality with the object’s \`clientId\` field."""
+  clientId: Int
+
+  """Checks for equality with the object’s \`comment\` field."""
+  comment: String
+
+  """Checks for equality with the object’s \`tsv\` field."""
+  tsv: FullText
+}
+
+"""
+A filter to be used against \`Order\` object types. All fields are combined with a logical ‘and.’
+"""
+input OrderFilter {
+  """Filter by the object’s \`id\` field."""
+  id: IntFilter
+
+  """Filter by the object’s \`clientId\` field."""
+  clientId: IntFilter
+
+  """Filter by the object’s \`comment\` field."""
+  comment: StringFilter
+
+  """Filter by the object’s \`tsv\` field."""
+  tsv: FullTextFilter
+
+  """Filter by the object’s \`clientByClientId\` relation."""
+  clientByClientId: ClientFilter
+
+  """A related \`clientByClientId\` exists."""
+  clientByClientIdExists: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [OrderFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [OrderFilter!]
+
+  """Negates the expression."""
+  not: OrderFilter
+}
+
+"""An input for mutations affecting \`Order\`"""
+input OrderInput {
+  id: Int
+  clientId: Int
+  comment: String
+  tsv: FullText
+}
+
+"""
+Represents an update to a \`Order\`. Fields that are set will be updated.
+"""
+input OrderPatch {
+  id: Int
+  clientId: Int
+  comment: String
+  tsv: FullText
+}
+
+"""A connection to a list of \`Order\` values."""
+type OrdersConnection {
+  """A list of \`Order\` objects."""
+  nodes: [Order]!
+
+  """
+  A list of edges which contains the \`Order\` and cursor to aid in pagination.
+  """
+  edges: [OrdersEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* \`Order\` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A \`Order\` edge in the connection."""
+type OrdersEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The \`Order\` at the end of the edge."""
+  node: Order
+}
+
+"""Methods to use when ordering \`Order\`."""
+enum OrdersOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  CLIENT_ID_ASC
+  CLIENT_ID_DESC
+  COMMENT_ASC
+  COMMENT_DESC
+  TSV_ASC
+  TSV_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  TSV_RANK_ASC
+  TSV_RANK_DESC
+}
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: Cursor
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: Cursor
+}
+
+"""The root query type which gives access points into the data universe."""
+type Query implements Node {
+  """
+  Exposes the root query type nested one level down. This is helpful for Relay 1
+  which can only query top level fields if they are in a particular form.
+  """
+  query: Query!
+
+  """
+  The root query type must be a \`Node\` to work well with Relay 1 mutations. This just resolves to \`query\`.
+  """
+  nodeId: ID!
+
+  """Fetches an object given its globally unique \`ID\`."""
+  node(
+    """The globally unique \`ID\`."""
+    nodeId: ID!
+  ): Node
+
+  """Reads and enables pagination through a set of \`Client\`."""
+  allClients(
+    """Only read the first \`n\` values of the set."""
+    first: Int
+
+    """Only read the last \`n\` values of the set."""
+    last: Int
+
+    """
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering \`Client\`."""
+    orderBy: [ClientsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ClientCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ClientFilter
+  ): ClientsConnection
+
+  """Reads and enables pagination through a set of \`Order\`."""
+  allOrders(
+    """Only read the first \`n\` values of the set."""
+    first: Int
+
+    """Only read the last \`n\` values of the set."""
+    last: Int
+
+    """
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering \`Order\`."""
+    orderBy: [OrdersOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: OrderCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: OrderFilter
+  ): OrdersConnection
+  clientById(id: Int!): Client
+  orderById(id: Int!): Order
+
+  """Reads a single \`Client\` using its globally unique \`ID\`."""
+  client(
+    """The globally unique \`ID\` to be used in selecting a single \`Client\`."""
+    nodeId: ID!
+  ): Client
+
+  """Reads a single \`Order\` using its globally unique \`ID\`."""
+  order(
+    """The globally unique \`ID\` to be used in selecting a single \`Order\`."""
+    nodeId: ID!
+  ): Order
+}
+
+"""
+A filter to be used against String fields. All fields are combined with a logical ‘and.’
+"""
+input StringFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: String
+
+  """Not equal to the specified value."""
+  notEqualTo: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: String
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: String
+
+  """Included in the specified list."""
+  in: [String!]
+
+  """Not included in the specified list."""
+  notIn: [String!]
+
+  """Less than the specified value."""
+  lessThan: String
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: String
+
+  """Greater than the specified value."""
+  greaterThan: String
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: String
+
+  """Contains the specified string (case-sensitive)."""
+  includes: String
+
+  """Does not contain the specified string (case-sensitive)."""
+  notIncludes: String
+
+  """Contains the specified string (case-insensitive)."""
+  includesInsensitive: String
+
+  """Does not contain the specified string (case-insensitive)."""
+  notIncludesInsensitive: String
+
+  """Starts with the specified string (case-sensitive)."""
+  startsWith: String
+
+  """Does not start with the specified string (case-sensitive)."""
+  notStartsWith: String
+
+  """Starts with the specified string (case-insensitive)."""
+  startsWithInsensitive: String
+
+  """Does not start with the specified string (case-insensitive)."""
+  notStartsWithInsensitive: String
+
+  """Ends with the specified string (case-sensitive)."""
+  endsWith: String
+
+  """Does not end with the specified string (case-sensitive)."""
+  notEndsWith: String
+
+  """Ends with the specified string (case-insensitive)."""
+  endsWithInsensitive: String
+
+  """Does not end with the specified string (case-insensitive)."""
+  notEndsWithInsensitive: String
+
+  """
+  Matches the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  like: String
+
+  """
+  Does not match the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLike: String
+
+  """
+  Matches the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  likeInsensitive: String
+
+  """
+  Does not match the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLikeInsensitive: String
+
+  """Equal to the specified value (case-insensitive)."""
+  equalToInsensitive: String
+
+  """Not equal to the specified value (case-insensitive)."""
+  notEqualToInsensitive: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  distinctFromInsensitive: String
+
+  """
+  Equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  notDistinctFromInsensitive: String
+
+  """Included in the specified list (case-insensitive)."""
+  inInsensitive: [String!]
+
+  """Not included in the specified list (case-insensitive)."""
+  notInInsensitive: [String!]
+
+  """Less than the specified value (case-insensitive)."""
+  lessThanInsensitive: String
+
+  """Less than or equal to the specified value (case-insensitive)."""
+  lessThanOrEqualToInsensitive: String
+
+  """Greater than the specified value (case-insensitive)."""
+  greaterThanInsensitive: String
+
+  """Greater than or equal to the specified value (case-insensitive)."""
+  greaterThanOrEqualToInsensitive: String
+}
+
+"""All input for the \`updateClientById\` mutation."""
+input UpdateClientByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the \`Client\` being updated.
+  """
+  clientPatch: ClientPatch!
+  id: Int!
+}
+
+"""All input for the \`updateClient\` mutation."""
+input UpdateClientInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Client\` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the \`Client\` being updated.
+  """
+  clientPatch: ClientPatch!
+}
+
+"""The output of our update \`Client\` mutation."""
+type UpdateClientPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Client\` that was updated by this mutation."""
+  client: Client
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Client\`. May be used by Relay 1."""
+  clientEdge(
+    """The method to use when ordering \`Client\`."""
+    orderBy: [ClientsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ClientsEdge
+}
+
+"""All input for the \`updateOrderById\` mutation."""
+input UpdateOrderByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the \`Order\` being updated.
+  """
+  orderPatch: OrderPatch!
+  id: Int!
+}
+
+"""All input for the \`updateOrder\` mutation."""
+input UpdateOrderInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Order\` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the \`Order\` being updated.
+  """
+  orderPatch: OrderPatch!
+}
+
+"""The output of our update \`Order\` mutation."""
+type UpdateOrderPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Order\` that was updated by this mutation."""
+  order: Order
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single \`Client\` that is related to this \`Order\`."""
+  clientByClientId: Client
+
+  """An edge for our \`Order\`. May be used by Relay 1."""
+  orderEdge(
+    """The method to use when ordering \`Order\`."""
+    orderBy: [OrdersOrderBy!] = [PRIMARY_KEY_ASC]
+  ): OrdersEdge
+}
+
 `;
 
 exports[`works with connectionFilterRelations with no local filter 1`] = `
-GraphQLSchema {
-  "__validationErrors": [],
-  "_directives": [
-    "@include",
-    "@skip",
-    "@deprecated",
-    "@specifiedBy",
-  ],
-  "_implementationsMap": {
-    "Node": {
-      "interfaces": [],
-      "objects": [
-        "Query",
-        "Client",
-        "Order",
-      ],
-    },
-  },
-  "_mutationType": "Mutation",
-  "_queryType": "Query",
-  "_subTypeMap": {},
-  "_subscriptionType": undefined,
-  "_typeMap": {
-    "Boolean": "Boolean",
-    "Client": "Client",
-    "ClientCondition": "ClientCondition",
-    "ClientFilter": "ClientFilter",
-    "ClientInput": "ClientInput",
-    "ClientPatch": "ClientPatch",
-    "ClientToManyOrderFilter": "ClientToManyOrderFilter",
-    "ClientsConnection": "ClientsConnection",
-    "ClientsEdge": "ClientsEdge",
-    "ClientsOrderBy": "ClientsOrderBy",
-    "CreateClientInput": "CreateClientInput",
-    "CreateClientPayload": "CreateClientPayload",
-    "CreateOrderInput": "CreateOrderInput",
-    "CreateOrderPayload": "CreateOrderPayload",
-    "Cursor": "Cursor",
-    "DeleteClientByIdInput": "DeleteClientByIdInput",
-    "DeleteClientInput": "DeleteClientInput",
-    "DeleteClientPayload": "DeleteClientPayload",
-    "DeleteOrderByIdInput": "DeleteOrderByIdInput",
-    "DeleteOrderInput": "DeleteOrderInput",
-    "DeleteOrderPayload": "DeleteOrderPayload",
-    "Float": "Float",
-    "FullText": "FullText",
-    "FullTextFilter": "FullTextFilter",
-    "ID": "ID",
-    "Int": "Int",
-    "IntFilter": "IntFilter",
-    "Mutation": "Mutation",
-    "Node": "Node",
-    "Order": "Order",
-    "OrderCondition": "OrderCondition",
-    "OrderFilter": "OrderFilter",
-    "OrderInput": "OrderInput",
-    "OrderPatch": "OrderPatch",
-    "OrdersConnection": "OrdersConnection",
-    "OrdersEdge": "OrdersEdge",
-    "OrdersOrderBy": "OrdersOrderBy",
-    "PageInfo": "PageInfo",
-    "Query": "Query",
-    "String": "String",
-    "StringFilter": "StringFilter",
-    "UpdateClientByIdInput": "UpdateClientByIdInput",
-    "UpdateClientInput": "UpdateClientInput",
-    "UpdateClientPayload": "UpdateClientPayload",
-    "UpdateOrderByIdInput": "UpdateOrderByIdInput",
-    "UpdateOrderInput": "UpdateOrderInput",
-    "UpdateOrderPayload": "UpdateOrderPayload",
-    "__Directive": "__Directive",
-    "__DirectiveLocation": "__DirectiveLocation",
-    "__EnumValue": "__EnumValue",
-    "__Field": "__Field",
-    "__InputValue": "__InputValue",
-    "__Schema": "__Schema",
-    "__Type": "__Type",
-    "__TypeKind": "__TypeKind",
-  },
-  "astNode": undefined,
-  "description": undefined,
-  "extensionASTNodes": undefined,
-  "extensions": undefined,
+type Client implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: Int!
+  comment: String
+  tsv: FullText
+
+  """Reads and enables pagination through a set of \`Order\`."""
+  ordersByClientId(
+    """Only read the first \`n\` values of the set."""
+    first: Int
+
+    """Only read the last \`n\` values of the set."""
+    last: Int
+
+    """
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering \`Order\`."""
+    orderBy: [OrdersOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: OrderCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: OrderFilter
+  ): OrdersConnection!
+
+  """Full-text search ranking when filtered by \`tsv\`."""
+  tsvRank: Float
 }
+
+"""
+A condition to be used against \`Client\` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input ClientCondition {
+  """Checks for equality with the object’s \`id\` field."""
+  id: Int
+
+  """Checks for equality with the object’s \`comment\` field."""
+  comment: String
+
+  """Checks for equality with the object’s \`tsv\` field."""
+  tsv: FullText
+}
+
+"""
+A filter to be used against \`Client\` object types. All fields are combined with a logical ‘and.’
+"""
+input ClientFilter {
+  """Filter by the object’s \`id\` field."""
+  id: IntFilter
+
+  """Filter by the object’s \`comment\` field."""
+  comment: StringFilter
+
+  """Filter by the object’s \`tsv\` field."""
+  tsv: FullTextFilter
+
+  """Filter by the object’s \`ordersByClientId\` relation."""
+  ordersByClientId: ClientToManyOrderFilter
+
+  """Some related \`ordersByClientId\` exist."""
+  ordersByClientIdExist: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [ClientFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [ClientFilter!]
+
+  """Negates the expression."""
+  not: ClientFilter
+}
+
+"""An input for mutations affecting \`Client\`"""
+input ClientInput {
+  id: Int
+  comment: String
+  tsv: FullText
+}
+
+"""
+Represents an update to a \`Client\`. Fields that are set will be updated.
+"""
+input ClientPatch {
+  id: Int
+  comment: String
+  tsv: FullText
+}
+
+"""
+A filter to be used against many \`Order\` object types. All fields are combined with a logical ‘and.’
+"""
+input ClientToManyOrderFilter {
+  """
+  Every related \`Order\` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: OrderFilter
+
+  """
+  Some related \`Order\` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: OrderFilter
+
+  """
+  No related \`Order\` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: OrderFilter
+}
+
+"""A connection to a list of \`Client\` values."""
+type ClientsConnection {
+  """A list of \`Client\` objects."""
+  nodes: [Client]!
+
+  """
+  A list of edges which contains the \`Client\` and cursor to aid in pagination.
+  """
+  edges: [ClientsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* \`Client\` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A \`Client\` edge in the connection."""
+type ClientsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The \`Client\` at the end of the edge."""
+  node: Client
+}
+
+"""Methods to use when ordering \`Client\`."""
+enum ClientsOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  COMMENT_ASC
+  COMMENT_DESC
+  TSV_ASC
+  TSV_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  TSV_RANK_ASC
+  TSV_RANK_DESC
+}
+
+"""All input for the create \`Client\` mutation."""
+input CreateClientInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The \`Client\` to be created by this mutation."""
+  client: ClientInput!
+}
+
+"""The output of our create \`Client\` mutation."""
+type CreateClientPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Client\` that was created by this mutation."""
+  client: Client
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Client\`. May be used by Relay 1."""
+  clientEdge(
+    """The method to use when ordering \`Client\`."""
+    orderBy: [ClientsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ClientsEdge
+}
+
+"""All input for the create \`Order\` mutation."""
+input CreateOrderInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The \`Order\` to be created by this mutation."""
+  order: OrderInput!
+}
+
+"""The output of our create \`Order\` mutation."""
+type CreateOrderPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Order\` that was created by this mutation."""
+  order: Order
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single \`Client\` that is related to this \`Order\`."""
+  clientByClientId: Client
+
+  """An edge for our \`Order\`. May be used by Relay 1."""
+  orderEdge(
+    """The method to use when ordering \`Order\`."""
+    orderBy: [OrdersOrderBy!] = [PRIMARY_KEY_ASC]
+  ): OrdersEdge
+}
+
+"""A location in a connection that can be used for resuming pagination."""
+scalar Cursor
+
+"""All input for the \`deleteClientById\` mutation."""
+input DeleteClientByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: Int!
+}
+
+"""All input for the \`deleteClient\` mutation."""
+input DeleteClientInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Client\` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""The output of our delete \`Client\` mutation."""
+type DeleteClientPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Client\` that was deleted by this mutation."""
+  client: Client
+  deletedClientId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Client\`. May be used by Relay 1."""
+  clientEdge(
+    """The method to use when ordering \`Client\`."""
+    orderBy: [ClientsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ClientsEdge
+}
+
+"""All input for the \`deleteOrderById\` mutation."""
+input DeleteOrderByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: Int!
+}
+
+"""All input for the \`deleteOrder\` mutation."""
+input DeleteOrderInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Order\` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""The output of our delete \`Order\` mutation."""
+type DeleteOrderPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Order\` that was deleted by this mutation."""
+  order: Order
+  deletedOrderId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single \`Client\` that is related to this \`Order\`."""
+  clientByClientId: Client
+
+  """An edge for our \`Order\`. May be used by Relay 1."""
+  orderEdge(
+    """The method to use when ordering \`Order\`."""
+    orderBy: [OrdersOrderBy!] = [PRIMARY_KEY_ASC]
+  ): OrdersEdge
+}
+
+scalar FullText
+
+"""
+A filter to be used against FullText fields. All fields are combined with a logical ‘and.’
+"""
+input FullTextFilter {
+  """Performs a full text search on the field."""
+  matches: String
+}
+
+"""
+A filter to be used against Int fields. All fields are combined with a logical ‘and.’
+"""
+input IntFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: Int
+
+  """Not equal to the specified value."""
+  notEqualTo: Int
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Int
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Int
+
+  """Included in the specified list."""
+  in: [Int!]
+
+  """Not included in the specified list."""
+  notIn: [Int!]
+
+  """Less than the specified value."""
+  lessThan: Int
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Int
+
+  """Greater than the specified value."""
+  greaterThan: Int
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Int
+}
+
+"""
+The root mutation type which contains root level fields which mutate data.
+"""
+type Mutation {
+  """Creates a single \`Client\`."""
+  createClient(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateClientInput!
+  ): CreateClientPayload
+
+  """Creates a single \`Order\`."""
+  createOrder(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateOrderInput!
+  ): CreateOrderPayload
+
+  """Updates a single \`Client\` using its globally unique id and a patch."""
+  updateClient(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateClientInput!
+  ): UpdateClientPayload
+
+  """Updates a single \`Client\` using a unique key and a patch."""
+  updateClientById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateClientByIdInput!
+  ): UpdateClientPayload
+
+  """Updates a single \`Order\` using its globally unique id and a patch."""
+  updateOrder(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateOrderInput!
+  ): UpdateOrderPayload
+
+  """Updates a single \`Order\` using a unique key and a patch."""
+  updateOrderById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateOrderByIdInput!
+  ): UpdateOrderPayload
+
+  """Deletes a single \`Client\` using its globally unique id."""
+  deleteClient(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteClientInput!
+  ): DeleteClientPayload
+
+  """Deletes a single \`Client\` using a unique key."""
+  deleteClientById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteClientByIdInput!
+  ): DeleteClientPayload
+
+  """Deletes a single \`Order\` using its globally unique id."""
+  deleteOrder(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteOrderInput!
+  ): DeleteOrderPayload
+
+  """Deletes a single \`Order\` using a unique key."""
+  deleteOrderById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteOrderByIdInput!
+  ): DeleteOrderPayload
+}
+
+"""An object with a globally unique \`ID\`."""
+interface Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+}
+
+type Order implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: Int!
+  clientId: Int
+  comment: String
+  tsv: FullText
+
+  """Reads a single \`Client\` that is related to this \`Order\`."""
+  clientByClientId: Client
+
+  """Full-text search ranking when filtered by \`tsv\`."""
+  tsvRank: Float
+}
+
+"""
+A condition to be used against \`Order\` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input OrderCondition {
+  """Checks for equality with the object’s \`id\` field."""
+  id: Int
+
+  """Checks for equality with the object’s \`clientId\` field."""
+  clientId: Int
+
+  """Checks for equality with the object’s \`comment\` field."""
+  comment: String
+
+  """Checks for equality with the object’s \`tsv\` field."""
+  tsv: FullText
+}
+
+"""
+A filter to be used against \`Order\` object types. All fields are combined with a logical ‘and.’
+"""
+input OrderFilter {
+  """Filter by the object’s \`id\` field."""
+  id: IntFilter
+
+  """Filter by the object’s \`clientId\` field."""
+  clientId: IntFilter
+
+  """Filter by the object’s \`comment\` field."""
+  comment: StringFilter
+
+  """Filter by the object’s \`tsv\` field."""
+  tsv: FullTextFilter
+
+  """Filter by the object’s \`clientByClientId\` relation."""
+  clientByClientId: ClientFilter
+
+  """A related \`clientByClientId\` exists."""
+  clientByClientIdExists: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [OrderFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [OrderFilter!]
+
+  """Negates the expression."""
+  not: OrderFilter
+}
+
+"""An input for mutations affecting \`Order\`"""
+input OrderInput {
+  id: Int
+  clientId: Int
+  comment: String
+  tsv: FullText
+}
+
+"""
+Represents an update to a \`Order\`. Fields that are set will be updated.
+"""
+input OrderPatch {
+  id: Int
+  clientId: Int
+  comment: String
+  tsv: FullText
+}
+
+"""A connection to a list of \`Order\` values."""
+type OrdersConnection {
+  """A list of \`Order\` objects."""
+  nodes: [Order]!
+
+  """
+  A list of edges which contains the \`Order\` and cursor to aid in pagination.
+  """
+  edges: [OrdersEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* \`Order\` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A \`Order\` edge in the connection."""
+type OrdersEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The \`Order\` at the end of the edge."""
+  node: Order
+}
+
+"""Methods to use when ordering \`Order\`."""
+enum OrdersOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  CLIENT_ID_ASC
+  CLIENT_ID_DESC
+  COMMENT_ASC
+  COMMENT_DESC
+  TSV_ASC
+  TSV_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  TSV_RANK_ASC
+  TSV_RANK_DESC
+}
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: Cursor
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: Cursor
+}
+
+"""The root query type which gives access points into the data universe."""
+type Query implements Node {
+  """
+  Exposes the root query type nested one level down. This is helpful for Relay 1
+  which can only query top level fields if they are in a particular form.
+  """
+  query: Query!
+
+  """
+  The root query type must be a \`Node\` to work well with Relay 1 mutations. This just resolves to \`query\`.
+  """
+  nodeId: ID!
+
+  """Fetches an object given its globally unique \`ID\`."""
+  node(
+    """The globally unique \`ID\`."""
+    nodeId: ID!
+  ): Node
+
+  """Reads and enables pagination through a set of \`Client\`."""
+  allClients(
+    """Only read the first \`n\` values of the set."""
+    first: Int
+
+    """Only read the last \`n\` values of the set."""
+    last: Int
+
+    """
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering \`Client\`."""
+    orderBy: [ClientsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ClientCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ClientFilter
+  ): ClientsConnection
+
+  """Reads and enables pagination through a set of \`Order\`."""
+  allOrders(
+    """Only read the first \`n\` values of the set."""
+    first: Int
+
+    """Only read the last \`n\` values of the set."""
+    last: Int
+
+    """
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering \`Order\`."""
+    orderBy: [OrdersOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: OrderCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: OrderFilter
+  ): OrdersConnection
+  clientById(id: Int!): Client
+  orderById(id: Int!): Order
+
+  """Reads a single \`Client\` using its globally unique \`ID\`."""
+  client(
+    """The globally unique \`ID\` to be used in selecting a single \`Client\`."""
+    nodeId: ID!
+  ): Client
+
+  """Reads a single \`Order\` using its globally unique \`ID\`."""
+  order(
+    """The globally unique \`ID\` to be used in selecting a single \`Order\`."""
+    nodeId: ID!
+  ): Order
+}
+
+"""
+A filter to be used against String fields. All fields are combined with a logical ‘and.’
+"""
+input StringFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: String
+
+  """Not equal to the specified value."""
+  notEqualTo: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: String
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: String
+
+  """Included in the specified list."""
+  in: [String!]
+
+  """Not included in the specified list."""
+  notIn: [String!]
+
+  """Less than the specified value."""
+  lessThan: String
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: String
+
+  """Greater than the specified value."""
+  greaterThan: String
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: String
+
+  """Contains the specified string (case-sensitive)."""
+  includes: String
+
+  """Does not contain the specified string (case-sensitive)."""
+  notIncludes: String
+
+  """Contains the specified string (case-insensitive)."""
+  includesInsensitive: String
+
+  """Does not contain the specified string (case-insensitive)."""
+  notIncludesInsensitive: String
+
+  """Starts with the specified string (case-sensitive)."""
+  startsWith: String
+
+  """Does not start with the specified string (case-sensitive)."""
+  notStartsWith: String
+
+  """Starts with the specified string (case-insensitive)."""
+  startsWithInsensitive: String
+
+  """Does not start with the specified string (case-insensitive)."""
+  notStartsWithInsensitive: String
+
+  """Ends with the specified string (case-sensitive)."""
+  endsWith: String
+
+  """Does not end with the specified string (case-sensitive)."""
+  notEndsWith: String
+
+  """Ends with the specified string (case-insensitive)."""
+  endsWithInsensitive: String
+
+  """Does not end with the specified string (case-insensitive)."""
+  notEndsWithInsensitive: String
+
+  """
+  Matches the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  like: String
+
+  """
+  Does not match the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLike: String
+
+  """
+  Matches the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  likeInsensitive: String
+
+  """
+  Does not match the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLikeInsensitive: String
+
+  """Equal to the specified value (case-insensitive)."""
+  equalToInsensitive: String
+
+  """Not equal to the specified value (case-insensitive)."""
+  notEqualToInsensitive: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  distinctFromInsensitive: String
+
+  """
+  Equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  notDistinctFromInsensitive: String
+
+  """Included in the specified list (case-insensitive)."""
+  inInsensitive: [String!]
+
+  """Not included in the specified list (case-insensitive)."""
+  notInInsensitive: [String!]
+
+  """Less than the specified value (case-insensitive)."""
+  lessThanInsensitive: String
+
+  """Less than or equal to the specified value (case-insensitive)."""
+  lessThanOrEqualToInsensitive: String
+
+  """Greater than the specified value (case-insensitive)."""
+  greaterThanInsensitive: String
+
+  """Greater than or equal to the specified value (case-insensitive)."""
+  greaterThanOrEqualToInsensitive: String
+}
+
+"""All input for the \`updateClientById\` mutation."""
+input UpdateClientByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the \`Client\` being updated.
+  """
+  clientPatch: ClientPatch!
+  id: Int!
+}
+
+"""All input for the \`updateClient\` mutation."""
+input UpdateClientInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Client\` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the \`Client\` being updated.
+  """
+  clientPatch: ClientPatch!
+}
+
+"""The output of our update \`Client\` mutation."""
+type UpdateClientPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Client\` that was updated by this mutation."""
+  client: Client
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Client\`. May be used by Relay 1."""
+  clientEdge(
+    """The method to use when ordering \`Client\`."""
+    orderBy: [ClientsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ClientsEdge
+}
+
+"""All input for the \`updateOrderById\` mutation."""
+input UpdateOrderByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the \`Order\` being updated.
+  """
+  orderPatch: OrderPatch!
+  id: Int!
+}
+
+"""All input for the \`updateOrder\` mutation."""
+input UpdateOrderInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Order\` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the \`Order\` being updated.
+  """
+  orderPatch: OrderPatch!
+}
+
+"""The output of our update \`Order\` mutation."""
+type UpdateOrderPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Order\` that was updated by this mutation."""
+  order: Order
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single \`Client\` that is related to this \`Order\`."""
+  clientByClientId: Client
+
+  """An edge for our \`Order\`. May be used by Relay 1."""
+  orderEdge(
+    """The method to use when ordering \`Order\`."""
+    orderBy: [OrdersOrderBy!] = [PRIMARY_KEY_ASC]
+  ): OrdersEdge
+}
+
 `;
