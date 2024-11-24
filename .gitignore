@@ -1,15 +1,20 @@
 # dependencies
-node_modules
+/.yarn
+/.yarnrc.yml
+/node_modules
 
 # testing
-coverage
+/coverage
+
 # production
-build
-.netlify
-dist
+/build
+/.netlify
+/dist
 
 # misc
+/.git
 .DS_Store
+.env
 npm-debug.log
 yarn-error.log
 
@@ -17,5 +22,3 @@ yarn-error.log
 .idea/*
 *.swp
 .vscode
-
-.env
