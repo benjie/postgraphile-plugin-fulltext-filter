@@ -1,9 +1,10 @@
-const { Tsquery } = require('pg-tsquery');
-const { omit } = require('graphile-build-pg');
+import { Tsquery } from 'pg-tsquery';
+import type { Plugin } from 'graphile-build';
+import { omit } from 'graphile-build-pg';
 
 const tsquery = new Tsquery();
 
-module.exports = function PostGraphileFulltextFilterPlugin(builder) {
+const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
   builder.hook('inflection', (inflection, build) => build.extend(inflection, {
     fullTextScalarTypeName() {
       return 'FullText';
@@ -72,7 +73,7 @@ module.exports = function PostGraphileFulltextFilterPlugin(builder) {
     } = build;
 
     if (!pgTsvType) {
-      return build;
+      return _;
     }
 
     if (!(addConnectionFilterOperator instanceof Function)) {
@@ -94,7 +95,7 @@ module.exports = function PostGraphileFulltextFilterPlugin(builder) {
       },
     );
 
-    return (_, build);
+    return _;
   });
 
   builder.hook('GraphQLObjectType:fields', (fields, build, context) => {
@@ -293,3 +294,11 @@ module.exports = function PostGraphileFulltextFilterPlugin(builder) {
     );
   });
 };
+
+
+export default PostGraphileFulltextFilterPlugin;
+
+// HACK: for TypeScript/Babel import
+module.exports = PostGraphileFulltextFilterPlugin;
+module.exports.default =PostGraphileFulltextFilterPlugin ;
+Object.defineProperty(module.exports, "__esModule", { value: true });
