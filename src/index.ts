@@ -62,63 +62,14 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
 
   schema: {
     hooks: {
-      build(build) {
-        const {
-          pgIntrospectionResultsByKind: introspectionResultsByKind,
-          pgRegisterGqlTypeByTypeId: registerGqlTypeByTypeId,
-          pgRegisterGqlInputTypeByTypeId: registerGqlInputTypeByTypeId,
-          graphql: { GraphQLScalarType },
-          inflection,
-        } = build;
-
-        const tsvectorType = introspectionResultsByKind.type.find(
-          (t) => t.name === "tsvector",
-        );
-        if (!tsvectorType) {
-          throw new Error(
-            "Unable to find tsvector type through introspection.",
-          );
-        }
-
-        const scalarName = inflection.fullTextScalarTypeName();
-
-        const GraphQLFullTextType = new GraphQLScalarType({
-          name: scalarName,
-          serialize(value) {
-            return value;
-          },
-          parseValue(value) {
-            return value;
-          },
-          parseLiteral(lit) {
-            return lit;
-          },
-        });
-
-        registerGqlTypeByTypeId(tsvectorType.id, () => GraphQLFullTextType);
-        registerGqlInputTypeByTypeId(
-          tsvectorType.id,
-          () => GraphQLFullTextType,
-        );
-
-        return build.extend(build, {
-          pgTsvType: tsvectorType,
-        });
-      },
-
       init(_, build) {
         const {
           addConnectionFilterOperator,
-          pgSql: sql,
-          pgGetGqlInputTypeByTypeIdAndModifier:
-            getGqlInputTypeByTypeIdAndModifier,
+          sql,
           graphql: { GraphQLString },
-          pgTsvType,
+          grafast: { lambda },
+          inflection,
         } = build;
-
-        if (!pgTsvType) {
-          return _;
-        }
 
         if (!(addConnectionFilterOperator instanceof Function)) {
           throw new Error(
@@ -126,23 +77,52 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           );
         }
 
-        const InputType = getGqlInputTypeByTypeIdAndModifier(
-          pgTsvType.id,
-          null,
+        const scalarName = inflection.fullTextScalarTypeName();
+        build.registerScalarType(
+          scalarName,
+          {},
+          () => ({
+            serialize(value) {
+              return value;
+            },
+            parseValue(value) {
+              return value;
+            },
+            parseLiteral(lit) {
+              return lit;
+            },
+          }),
+          "Adding full text scalar type",
         );
 
-        addConnectionFilterOperator(
-          [InputType.name],
-          "matches",
-          "Performs a full text search on the field.",
-          () => GraphQLString,
-          (identifier, val, input, fieldName, queryBuilder) => {
-            const tsQueryString = `${tsquery.parse(input) || ""}`;
-            queryBuilder.__fts_ranks = queryBuilder.__fts_ranks || {};
-            queryBuilder.__fts_ranks[fieldName] = [identifier, tsQueryString];
-            return sql.query`${identifier} @@ to_tsquery(${sql.value(tsQueryString)})`;
-          },
+        const tsvectorCodecs = [...build.allPgCodecs].filter(
+          (c) =>
+            c.extensions?.pg?.schemaName === "pg_catalog" &&
+            c.extensions?.pg?.name === "tsvector",
         );
+
+        for (const tsvectorCodec of tsvectorCodecs) {
+          build.setGraphQLTypeForPgCodec(
+            tsvectorCodec,
+            ["input", "output"],
+            scalarName,
+          );
+        }
+
+        addConnectionFilterOperator(scalarName, "matches", {
+          description: "Performs a full text search on the field.",
+          resolveType: () => GraphQLString,
+          resolve(sqlIdentifier, sqlValue, $input, $placeholderable) {
+            const $tsQueryString = lambda(
+              $input,
+              (input) => `${tsquery.parse(input) || ""}`,
+              true,
+            );
+            // queryBuilder.__fts_ranks = queryBuilder.__fts_ranks || {};
+            // queryBuilder.__fts_ranks[fieldName] = [identifier, tsQueryString];
+            return sql.query`${sqlIdentifier} @@ to_tsquery(${sql.value(tsQueryString)})`;
+          },
+        });
 
         return _;
       },
