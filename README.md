@@ -80,3 +80,15 @@ query {
   }
 }
 ```
+
+## Contributing
+
+Run the tests with:
+
+```sh
+yarn
+createdb postgraphile_plugin_fulltext_filter || true
+echo 'export TEST_DATABASE_URL="postgres:///postgraphile_plugin_fulltext_filter"' >> .env
+chmod +x .env
+yarn test
+```
