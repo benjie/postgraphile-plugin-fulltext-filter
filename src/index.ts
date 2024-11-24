@@ -1,9 +1,13 @@
 import { Tsquery } from "pg-tsquery";
 import type {} from "postgraphile";
+import type { SQL } from "postgraphile/pg-sql2";
 import type {
+  PgCodec,
   PgCodecWithAttributes,
   PgResource,
   PgResourceParameter,
+  PgSelectStep,
+  PgSelectSingleStep,
 } from "postgraphile/@dataplan/pg";
 
 declare global {
@@ -24,10 +28,27 @@ declare global {
         ascending: boolean,
       ): string;
     }
+    interface ScopeObjectFieldsField {
+      isPgTSVRankField?: boolean;
+    }
   }
 }
 
+/**
+ * DO NOT DO THIS!
+ */
+type HackedPgSelectStep = PgSelectStep & {
+  __fts_ranks?: Record<string, [identifier: SQL, value: SQL]>;
+};
+
 const tsquery = new Tsquery();
+
+function isTsvectorCodec(codec: PgCodec) {
+  return (
+    codec.extensions?.pg?.schemaName === "pg_catalog" &&
+    codec.extensions?.pg?.name === "tsvector"
+  );
+}
 
 const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
   name: "PostGraphileFulltextFilterPlugin",
@@ -67,7 +88,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           addConnectionFilterOperator,
           sql,
           graphql: { GraphQLString, Kind },
-          grafast: { lambda },
+          dataplanPg: { PgConditionStep, PgSelectStep },
           inflection,
         } = build;
 
@@ -103,11 +124,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           "Adding full text scalar type",
         );
 
-        const tsvectorCodecs = [...build.allPgCodecs].filter(
-          (c) =>
-            c.extensions?.pg?.schemaName === "pg_catalog" &&
-            c.extensions?.pg?.name === "tsvector",
-        );
+        const tsvectorCodecs = [...build.allPgCodecs].filter(isTsvectorCodec);
 
         for (const tsvectorCodec of tsvectorCodecs) {
           build.setGraphQLTypeForPgCodec(
@@ -120,9 +137,34 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         addConnectionFilterOperator(scalarName, "matches", {
           description: "Performs a full text search on the field.",
           resolveType: () => GraphQLString,
-          resolve(sqlIdentifier, sqlValue) {
-            // queryBuilder.__fts_ranks = queryBuilder.__fts_ranks || {};
-            // queryBuilder.__fts_ranks[fieldName] = [identifier, tsQueryString];
+          resolve(
+            sqlIdentifier,
+            sqlValue,
+            $input,
+            $placeholderable,
+            { fieldName },
+          ) {
+            /*
+             * Hacks on hacks on hacks... Don't do this because it breaks
+             * normalized caching - we're only doing it to maintain backwards
+             * compatibility.
+             */
+            let $step = $placeholderable;
+            while ($step instanceof PgConditionStep) {
+              $step = ($step as any).$parent;
+            }
+            if ($step instanceof PgSelectStep) {
+              const $s = $step as HackedPgSelectStep;
+              // queryBuilder.__fts_ranks = queryBuilder.__fts_ranks || {};
+              $s.__fts_ranks ??= Object.create(null);
+              // queryBuilder.__fts_ranks[fieldName] = [identifier, tsQueryString];
+              $s.__fts_ranks![fieldName] = [sqlIdentifier, sqlValue];
+            } else {
+              console.log(
+                `${$step} was not a PgSelectStep... unable to cache rank`,
+              );
+            }
+
             return sql.query`${sqlIdentifier} @@ to_tsquery(${sqlValue})`;
           },
         });
@@ -132,104 +174,106 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
 
       GraphQLObjectType_fields(fields, build, context) {
         const {
-          pgIntrospectionResultsByKind: introspectionResultsByKind,
+          dataplanPg: { TYPES },
+          grafast: { constant },
           graphql: { GraphQLFloat },
-          pgColumnFilter,
-          pg2gql,
-          pgSql: sql,
+          input: { pgRegistry },
+          sql,
           inflection,
-          pgTsvType,
+          behavior,
         } = build;
 
         const {
-          scope: { isPgRowType, isPgCompoundType, pgIntrospection: table },
+          scope: {
+            isPgClassType, // isPgRowType, isPgCompoundType,
+            pgCodec: rawPgCodec,
+          },
           fieldWithHooks,
         } = context;
 
-        if (
-          !(isPgRowType || isPgCompoundType) ||
-          !table ||
-          table.kind !== "class" ||
-          !pgTsvType
-        ) {
+        if (!isPgClassType || !rawPgCodec?.attributes) {
           return fields;
         }
 
-        const tableType = introspectionResultsByKind.type.filter(
-          (type) =>
-            type.type === "c" &&
-            type.namespaceId === table.namespaceId &&
-            type.classId === table.id,
-        )[0];
-        if (!tableType) {
-          throw new Error("Could not determine the type of this table.");
-        }
+        const pgCodec = rawPgCodec as PgCodecWithAttributes;
 
-        const tsvColumns = table.attributes
-          .filter((attr) => attr.typeId === pgTsvType.id)
-          .filter((attr) => pgColumnFilter(attr, build, context))
-          .filter((attr) => !omit(attr, "filter"));
+        const tsvColumnNames = Object.keys(pgCodec.attributes).filter(
+          (attributeName) => {
+            if (
+              !behavior.pgCodecAttributeMatches(
+                [pgCodec, attributeName],
+                "filter",
+              )
+            ) {
+              return false;
+            }
+          },
+        );
 
-        const tsvProcs = introspectionResultsByKind.procedure
-          .filter((proc) => proc.isStable)
-          .filter((proc) => proc.namespaceId === table.namespaceId)
-          .filter((proc) => proc.name.startsWith(`${table.name}_`))
-          .filter((proc) => proc.argTypeIds.length > 0)
-          .filter((proc) => proc.argTypeIds[0] === tableType.id)
-          .filter((proc) => proc.returnTypeId === pgTsvType.id)
-          .filter((proc) => !omit(proc, "filter"));
+        const tsvProcs = Object.values(pgRegistry.pgResources).filter((r) => {
+          if (!isTsvectorCodec(r.codec)) return false;
+          if (!r.parameters) return false;
+          if (!r.parameters[0]) return false;
+          if (r.parameters[0].codec !== pgCodec) return false;
+          if (!behavior.pgResourceMatches(r, "typeField")) return false;
+          if (!behavior.pgResourceMatches(r, "filterBy")) return false;
+          if (typeof r.from !== "function") return false;
 
-        if (tsvColumns.length === 0 && tsvProcs.length === 0) {
+          // Must have only one required argument
+          // if (r.parameters.slice(1).some((p) => p.required)) return false
+
+          return true;
+        });
+
+        if (tsvColumnNames.length === 0 && tsvProcs.length === 0) {
           return fields;
         }
 
-        const newRankField = (baseFieldName, rankFieldName) =>
-          fieldWithHooks(
-            rankFieldName,
-            ({ addDataGenerator }) => {
-              addDataGenerator(({ alias }) => ({
-                pgQuery: (queryBuilder) => {
-                  const { parentQueryBuilder } = queryBuilder;
-                  if (
-                    !parentQueryBuilder ||
-                    !parentQueryBuilder.__fts_ranks ||
-                    !parentQueryBuilder.__fts_ranks[baseFieldName]
-                  ) {
-                    return;
-                  }
-                  const [identifier, tsQueryString] =
-                    parentQueryBuilder.__fts_ranks[baseFieldName];
-                  queryBuilder.select(
-                    sql.fragment`ts_rank(${identifier}, to_tsquery(${sql.value(tsQueryString)}))`,
-                    alias,
-                  );
-                },
-              }));
-              return {
-                description: `Full-text search ranking when filtered by \`${baseFieldName}\`.`,
-                type: GraphQLFloat,
-                resolve: (data) => pg2gql(data[rankFieldName], GraphQLFloat),
-              };
-            },
+        for (const tsvColumnName of tsvColumnNames) {
+          const baseFieldName = inflection.attribute({
+            codec: pgCodec,
+            attributeName: tsvColumnName,
+          });
+          const fieldName = inflection.pgTsvRank(baseFieldName);
+          build.extend(
+            fields,
             {
-              isPgTSVRankField: true,
+              [fieldName]: fieldWithHooks(
+                {
+                  fieldName,
+                  isPgTSVRankField: true,
+                },
+                () => {
+                  return {
+                    description: `Full-text search ranking when filtered by \`${baseFieldName}\`.`,
+                    type: GraphQLFloat,
+                    plan($step) {
+                      const $row = $step as PgSelectSingleStep;
+                      const $select = $row.getClassStep() as HackedPgSelectStep;
+                      const hack = $select?.__fts_ranks?.[baseFieldName];
+                      if (!hack) {
+                        return constant(null);
+                      }
+                      const [identifier, tsQueryString] = hack;
+                      return $row.select(
+                        sql.fragment`ts_rank(${identifier}, to_tsquery(${tsQueryString}))`,
+                        TYPES.float,
+                      );
+                    },
+                  };
+                },
+              ),
             },
+            `Adding rank field for ${tsvColumnName}`,
           );
-
-        const tsvFields = tsvColumns.reduce((memo, attr) => {
-          const fieldName = inflection.column(attr);
-          const rankFieldName = inflection.pgTsvRank(fieldName);
-          memo[rankFieldName] = newRankField(fieldName, rankFieldName); // eslint-disable-line no-param-reassign
-
-          return memo;
-        }, {});
+        }
 
         const tsvProcFields = tsvProcs.reduce((memo, proc) => {
-          const psuedoColumnName = proc.name.substr(table.name.length + 1);
+          const psuedoColumnName = proc.name.substr(pgCodec.name.length + 1);
           const fieldName = inflection.computedColumn(
             psuedoColumnName,
             proc,
-            table,
+            pgCodec,
           );
           const rankFieldName = inflection.pgTsvRank(fieldName);
           memo[rankFieldName] = newRankField(fieldName, rankFieldName); // eslint-disable-line no-param-reassign
@@ -261,16 +305,6 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           !pgTsvType
         ) {
           return values;
-        }
-
-        const tableType = introspectionResultsByKind.type.filter(
-          (type) =>
-            type.type === "c" &&
-            type.namespaceId === table.namespaceId &&
-            type.classId === table.id,
-        )[0];
-        if (!tableType) {
-          throw new Error("Could not determine the type of this table.");
         }
 
         const tsvColumns = introspectionResultsByKind.attribute
