@@ -314,6 +314,29 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
 
         const codec = rawPgCodec as PgCodecWithAttributes;
 
+        const makePlan =
+          (fieldName: string, direction: "ASC" | "DESC") =>
+          (step: PgSelectStep) => {
+            const $select = getHackedStep(build, step);
+            const hack = $select?.__fts_ranks[fieldName];
+            if (hack) {
+              const [identifier, tsQueryString] = hack;
+              step.orderBy({
+                codec: TYPES.float,
+                fragment: sql.fragment`ts_rank(${identifier}, to_tsquery(${tsQueryString}))`,
+                direction,
+              });
+            }
+          };
+
+        const makeSpec = (fieldName: string, direction: "ASC" | "DESC") => ({
+          extensions: {
+            grafast: {
+              applyPlan: makePlan(fieldName, direction),
+            },
+          },
+        });
+
         for (const [attributeName, attribute] of Object.entries(
           codec.attributes,
         )) {
@@ -330,37 +353,11 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
             false,
           );
 
-          const makePlan =
-            (direction: "ASC" | "DESC") => (step: PgSelectStep) => {
-              const $select = getHackedStep(build, step);
-              const hack = $select?.__fts_ranks[fieldName];
-              if (hack) {
-                const [identifier, tsQueryString] = hack;
-                step.orderBy({
-                  codec: TYPES.float,
-                  fragment: sql.fragment`ts_rank(${identifier}, to_tsquery(${tsQueryString}))`,
-                  direction,
-                });
-              }
-            };
-
           build.extend(
             values,
             {
-              [ascFieldName]: {
-                extensions: {
-                  grafast: {
-                    applyPlan: makePlan("ASC"),
-                  },
-                },
-              },
-              [descFieldName]: {
-                extensions: {
-                  grafast: {
-                    applyPlan: makePlan("DESC"),
-                  },
-                },
-              },
+              [ascFieldName]: makeSpec(fieldName, "ASC"),
+              [descFieldName]: makeSpec(fieldName, "DESC"),
             },
             `Adding orders for rank of ${attributeName} on ${context.Self.name}`,
           );
@@ -383,63 +380,31 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           },
         );
 
-        return extend(
-          values,
-          tsvColumns
-            .concat(tsvProcs)
-            .filter((attr) => pgColumnFilter(attr, build, context))
-            .filter((attr) => !omit(attr, "order"))
-            .reduce((memo, attr) => {
-              const fieldName =
-                attr.kind === "procedure"
-                  ? inflection.computedColumn(
-                      attr.name.substr(codec.name.length + 1),
-                      attr,
-                      codec,
-                    )
-                  : inflection.column(attr);
-              const ascFieldName = inflection.pgTsvOrderByColumnRankEnum(
-                codec,
-                attr,
-                true,
-              );
-              const descFieldName = inflection.pgTsvOrderByColumnRankEnum(
-                codec,
-                attr,
-                false,
-              );
+        for (const resource of tsvProcs) {
+          const fieldName = inflection.computedAttributeField({
+            resource,
+          });
+          const ascFieldName = inflection.pgTsvOrderByComputedColumnRankEnum(
+            codec,
+            resource,
+            true,
+          );
+          const descFieldName = inflection.pgTsvOrderByComputedColumnRankEnum(
+            codec,
+            resource,
+            false,
+          );
 
-              const findExpr = ({ queryBuilder }) => {
-                if (
-                  !queryBuilder.__fts_ranks ||
-                  !queryBuilder.__fts_ranks[fieldName]
-                ) {
-                  return sql.fragment`1`;
-                }
-                const [identifier, tsQueryString] =
-                  queryBuilder.__fts_ranks[fieldName];
-                return sql.fragment`ts_rank(${identifier}, to_tsquery(${sql.value(tsQueryString)}))`;
-              };
-
-              memo[ascFieldName] = {
-                // eslint-disable-line no-param-reassign
-                value: {
-                  alias: `${ascFieldName.toLowerCase()}`,
-                  specs: [[findExpr, true]],
-                },
-              };
-              memo[descFieldName] = {
-                // eslint-disable-line no-param-reassign
-                value: {
-                  alias: `${descFieldName.toLowerCase()}`,
-                  specs: [[findExpr, false]],
-                },
-              };
-
-              return memo;
-            }, {}),
-          `Adding TSV rank columns for sorting on table '${codec.name}'`,
-        );
+          build.extend(
+            values,
+            {
+              [ascFieldName]: makeSpec(fieldName, "ASC"),
+              [descFieldName]: makeSpec(fieldName, "DESC"),
+            },
+            `Adding TSV rank columns for sorting on table '${codec.name}'`,
+          );
+        }
+        return values;
       },
     },
   },
