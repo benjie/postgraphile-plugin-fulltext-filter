@@ -296,7 +296,6 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
 
       GraphQLEnumType_values(values, build, context) {
         const {
-          extend,
           sql,
           inflection,
           input: { pgRegistry },
