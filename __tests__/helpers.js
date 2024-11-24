@@ -150,7 +150,7 @@ const ShoveClientIntoContextPlugin = {
   },
 };
 
-/** @type {(blah: {setup?: string | ((client: import("pg").PoolClient) => Promise<void>), test: (stuff:{schema: import("postgraphile/graphql").GraphQLSchema,resolvedPreset: GraphileConfig.ResolvedPreset, pgClient: import("pg").PoolClient}) => Promise<void>, options: import("postgraphile/presets/v4").V4Options}) => () => Promise<void>} */
+/** @type {(blah: {setup?: string | ((client: import("pg").PoolClient) => Promise<void>), test: (stuff:{schema: import("postgraphile/graphql").GraphQLSchema,resolvedPreset: GraphileConfig.ResolvedPreset, pgClient: import("pg").PoolClient}) => Promise<void>, options?: import("postgraphile/presets/v4").V4Options}) => () => Promise<void>} */
 const withSchema =
   ({ setup, test, options = {} }) =>
   () =>
