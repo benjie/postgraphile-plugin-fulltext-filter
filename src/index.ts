@@ -411,8 +411,3 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
 };
 
 export default PostGraphileFulltextFilterPlugin;
-
-// HACK: for TypeScript/Babel import
-module.exports = PostGraphileFulltextFilterPlugin;
-module.exports.default = PostGraphileFulltextFilterPlugin;
-Object.defineProperty(module.exports, "__esModule", { value: true });
