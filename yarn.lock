@@ -3211,10 +3211,10 @@ possible-typed-array-names@^1.0.0:
   resolved "https://registry.yarnpkg.com/possible-typed-array-names/-/possible-typed-array-names-1.0.0.tgz#89bb63c6fada2c3e90adc4a647beeeb39cc7bf8f"
   integrity sha512-d7Uw+eZoloe0EHDIYoe+bQ5WXnGMOpmiZFTuMWCwpjzzkL2nTjcKiAk4hh8TjnGye2TwWOk3UXucZ+3rbmBa8Q==
 
-postgraphile-plugin-connection-filter@^3.0.0-beta.5:
-  version "3.0.0-beta.5"
-  resolved "https://registry.yarnpkg.com/postgraphile-plugin-connection-filter/-/postgraphile-plugin-connection-filter-3.0.0-beta.5.tgz#b7a0ef0873afb686adc3cd4455c4387fb16f1d35"
-  integrity sha512-HHI4jXNDNXf/S57nKl/Ynk3OnnfuYhdQXNxZi6tPe5gLLhwpG6Andl15C9/LIKQj1Rkq4oPjpUNxfLkWI6NB7Q==
+postgraphile-plugin-connection-filter@^3.0.0-beta.6:
+  version "3.0.0-beta.6"
+  resolved "https://registry.yarnpkg.com/postgraphile-plugin-connection-filter/-/postgraphile-plugin-connection-filter-3.0.0-beta.6.tgz#cf79a65f3285b082f233216bc2ebc1034effea71"
+  integrity sha512-H4QOiBSyI9Rrc+WMhQ+x471XZ3uh+V23E3TZgUry6ek8PhPIa1jUJHCD2mijXNkw1KUawpP0tZeGzbdq828XLw==
   dependencies:
     "@tsconfig/node20" "^20.1.4"
     tslib "^2.5.0"
