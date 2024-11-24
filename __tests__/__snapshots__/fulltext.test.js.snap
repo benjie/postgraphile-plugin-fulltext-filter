@@ -2,24 +2,27 @@
 
 exports[`fulltext search field is created 1`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
+    "@specifiedBy",
   ],
-  "_implementations": Object {
-    "Node": Array [
-      "Query",
-      "Job",
-    ],
+  "_implementationsMap": {
+    "Node": {
+      "interfaces": [],
+      "objects": [
+        "Query",
+        "Job",
+      ],
+    },
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
   "_queryType": "Query",
+  "_subTypeMap": {},
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "CreateJobInput": "CreateJobInput",
     "CreateJobPayload": "CreateJobPayload",
@@ -60,6 +63,7 @@ GraphQLSchema {
     "__TypeKind": "__TypeKind",
   },
   "astNode": undefined,
+  "description": undefined,
   "extensionASTNodes": undefined,
   "extensions": undefined,
 }
@@ -67,24 +71,27 @@ GraphQLSchema {
 
 exports[`fulltext search field is created 2`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
+    "@specifiedBy",
   ],
-  "_implementations": Object {
-    "Node": Array [
-      "Query",
-      "Job",
-    ],
+  "_implementationsMap": {
+    "Node": {
+      "interfaces": [],
+      "objects": [
+        "Query",
+        "Job",
+      ],
+    },
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
   "_queryType": "Query",
+  "_subTypeMap": {},
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "CreateJobInput": "CreateJobInput",
     "CreateJobPayload": "CreateJobPayload",
@@ -125,6 +132,7 @@ GraphQLSchema {
     "__TypeKind": "__TypeKind",
   },
   "astNode": undefined,
+  "description": undefined,
   "extensionASTNodes": undefined,
   "extensions": undefined,
 }
@@ -132,24 +140,27 @@ GraphQLSchema {
 
 exports[`querying rank without filter works 1`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
+    "@specifiedBy",
   ],
-  "_implementations": Object {
-    "Node": Array [
-      "Query",
-      "Job",
-    ],
+  "_implementationsMap": {
+    "Node": {
+      "interfaces": [],
+      "objects": [
+        "Query",
+        "Job",
+      ],
+    },
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
   "_queryType": "Query",
+  "_subTypeMap": {},
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "CreateJobInput": "CreateJobInput",
     "CreateJobPayload": "CreateJobPayload",
@@ -190,6 +201,7 @@ GraphQLSchema {
     "__TypeKind": "__TypeKind",
   },
   "astNode": undefined,
+  "description": undefined,
   "extensionASTNodes": undefined,
   "extensions": undefined,
 }
@@ -197,24 +209,27 @@ GraphQLSchema {
 
 exports[`sort by full text rank field works 1`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
+    "@specifiedBy",
   ],
-  "_implementations": Object {
-    "Node": Array [
-      "Query",
-      "Job",
-    ],
+  "_implementationsMap": {
+    "Node": {
+      "interfaces": [],
+      "objects": [
+        "Query",
+        "Job",
+      ],
+    },
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
   "_queryType": "Query",
+  "_subTypeMap": {},
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "CreateJobInput": "CreateJobInput",
     "CreateJobPayload": "CreateJobPayload",
@@ -255,6 +270,7 @@ GraphQLSchema {
     "__TypeKind": "__TypeKind",
   },
   "astNode": undefined,
+  "description": undefined,
   "extensionASTNodes": undefined,
   "extensions": undefined,
 }
@@ -262,24 +278,27 @@ GraphQLSchema {
 
 exports[`table with unfiltered full-text field works 1`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
+    "@specifiedBy",
   ],
-  "_implementations": Object {
-    "Node": Array [
-      "Query",
-      "Job",
-    ],
+  "_implementationsMap": {
+    "Node": {
+      "interfaces": [],
+      "objects": [
+        "Query",
+        "Job",
+      ],
+    },
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
   "_queryType": "Query",
+  "_subTypeMap": {},
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "CreateJobInput": "CreateJobInput",
     "CreateJobPayload": "CreateJobPayload",
@@ -320,6 +339,7 @@ GraphQLSchema {
     "__TypeKind": "__TypeKind",
   },
   "astNode": undefined,
+  "description": undefined,
   "extensionASTNodes": undefined,
   "extensions": undefined,
 }
@@ -327,25 +347,28 @@ GraphQLSchema {
 
 exports[`works with connectionFilterRelations 1`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
+    "@specifiedBy",
   ],
-  "_implementations": Object {
-    "Node": Array [
-      "Query",
-      "Client",
-      "Order",
-    ],
+  "_implementationsMap": {
+    "Node": {
+      "interfaces": [],
+      "objects": [
+        "Query",
+        "Client",
+        "Order",
+      ],
+    },
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
   "_queryType": "Query",
+  "_subTypeMap": {},
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "Client": "Client",
     "ClientCondition": "ClientCondition",
@@ -403,6 +426,7 @@ GraphQLSchema {
     "__TypeKind": "__TypeKind",
   },
   "astNode": undefined,
+  "description": undefined,
   "extensionASTNodes": undefined,
   "extensions": undefined,
 }
@@ -410,25 +434,28 @@ GraphQLSchema {
 
 exports[`works with connectionFilterRelations with no local filter 1`] = `
 GraphQLSchema {
-  "__allowedLegacyNames": Array [],
-  "__validationErrors": undefined,
-  "_directives": Array [
+  "__validationErrors": [],
+  "_directives": [
     "@include",
     "@skip",
     "@deprecated",
+    "@specifiedBy",
   ],
-  "_implementations": Object {
-    "Node": Array [
-      "Query",
-      "Client",
-      "Order",
-    ],
+  "_implementationsMap": {
+    "Node": {
+      "interfaces": [],
+      "objects": [
+        "Query",
+        "Client",
+        "Order",
+      ],
+    },
   },
   "_mutationType": "Mutation",
-  "_possibleTypeMap": Object {},
   "_queryType": "Query",
+  "_subTypeMap": {},
   "_subscriptionType": undefined,
-  "_typeMap": Object {
+  "_typeMap": {
     "Boolean": "Boolean",
     "Client": "Client",
     "ClientCondition": "ClientCondition",
@@ -486,6 +513,7 @@ GraphQLSchema {
     "__TypeKind": "__TypeKind",
   },
   "astNode": undefined,
+  "description": undefined,
   "extensionASTNodes": undefined,
   "extensions": undefined,
 }
