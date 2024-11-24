@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 const pg = require('pg');
 const { readFile } = require('fs');
-const pgConnectionString = require('pg-connection-string');
 const { createPostGraphileSchema } = require('postgraphile-core');
 
 // This test suite can be flaky. Increase it’s timeout.
@@ -16,14 +15,12 @@ function readFilePromise(filename, encoding) {
   });
 }
 
-const kitchenSinkData = () => readFilePromise(`${__dirname}/data.sql`, 'utf8');
-
 const withPgClient = async (url, fn) => {
   if (!fn) {
     fn = url;
     url = process.env.TEST_DATABASE_URL;
   }
-  const pgPool = new pg.Pool(pgConnectionString.parse(url));
+  const pgPool = new pg.Pool({connectionString: url});
   let client;
   try {
     client = await pgPool.connect();
