@@ -9,6 +9,7 @@ import type {
   PgSelectStep,
   PgSelectSingleStep,
 } from "postgraphile/@dataplan/pg";
+import type { ExecutableStep } from "postgraphile/grafast";
 
 declare global {
   namespace GraphileBuild {
@@ -38,8 +39,34 @@ declare global {
  * DO NOT DO THIS!
  */
 type HackedPgSelectStep = PgSelectStep & {
-  __fts_ranks?: Record<string, [identifier: SQL, value: SQL]>;
+  __fts_ranks: Record<string, [identifier: SQL, value: SQL]>;
 };
+
+/*
+ * Hacks on hacks on hacks... Don't do this because it breaks
+ * normalized caching - we're only doing it to maintain backwards
+ * compatibility.
+ */
+function getHackedStep(build: GraphileBuild.Build, $someStep: ExecutableStep) {
+  const {
+    dataplanPg: { PgConditionStep, PgSelectStep, PgSelectSingleStep },
+  } = build;
+  let $step = $someStep;
+  while ($step instanceof PgConditionStep) {
+    $step = ($step as any).$parent;
+  }
+  if ($step instanceof PgSelectSingleStep) {
+    $step = $step.getClassStep();
+  }
+  if ($step instanceof PgSelectStep) {
+    const $s = $step as HackedPgSelectStep;
+    $s.__fts_ranks ??= Object.create(null);
+    return $s;
+  } else {
+    console.log(`${$step} was not a PgSelectStep... unable to cache rank`);
+    return null;
+  }
+}
 
 const tsquery = new Tsquery();
 
@@ -144,25 +171,11 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
             $placeholderable,
             { fieldName },
           ) {
-            /*
-             * Hacks on hacks on hacks... Don't do this because it breaks
-             * normalized caching - we're only doing it to maintain backwards
-             * compatibility.
-             */
-            let $step = $placeholderable;
-            while ($step instanceof PgConditionStep) {
-              $step = ($step as any).$parent;
-            }
-            if ($step instanceof PgSelectStep) {
-              const $s = $step as HackedPgSelectStep;
-              // queryBuilder.__fts_ranks = queryBuilder.__fts_ranks || {};
-              $s.__fts_ranks ??= Object.create(null);
+            // queryBuilder.__fts_ranks = queryBuilder.__fts_ranks || {};
+            const $s = getHackedStep(build, $placeholderable as any);
+            if ($s) {
               // queryBuilder.__fts_ranks[fieldName] = [identifier, tsQueryString];
               $s.__fts_ranks![fieldName] = [sqlIdentifier, sqlValue];
-            } else {
-              console.log(
-                `${$step} was not a PgSelectStep... unable to cache rank`,
-              );
             }
 
             return sql.query`${sqlIdentifier} @@ to_tsquery(${sqlValue})`;
@@ -216,8 +229,8 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
                     type: GraphQLFloat,
                     plan($step) {
                       const $row = $step as PgSelectSingleStep;
-                      const $select = $row.getClassStep() as HackedPgSelectStep;
-                      const hack = $select?.__fts_ranks?.[baseFieldName];
+                      const $select = getHackedStep(build, $row);
+                      const hack = $select?.__fts_ranks[baseFieldName];
                       if (!hack) {
                         return constant(null);
                       }
@@ -284,42 +297,91 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
       GraphQLEnumType_values(values, build, context) {
         const {
           extend,
-          pgSql: sql,
-          pgColumnFilter,
-          pgIntrospectionResultsByKind: introspectionResultsByKind,
+          sql,
           inflection,
-          pgTsvType,
+          input: { pgRegistry },
+          behavior,
+          dataplanPg: { TYPES },
         } = build;
 
         const {
-          scope: { isPgRowSortEnum, pgIntrospection: table },
+          scope: { isPgRowSortEnum, pgCodec: rawPgCodec },
         } = context;
 
-        if (
-          !isPgRowSortEnum ||
-          !table ||
-          table.kind !== "class" ||
-          !pgTsvType
-        ) {
+        if (!isPgRowSortEnum || !rawPgCodec || !rawPgCodec.attributes) {
           return values;
         }
 
-        const tsvColumns = introspectionResultsByKind.attribute
-          .filter((attr) => attr.classId === table.id)
-          .filter((attr) => attr.typeId === pgTsvType.id);
+        const codec = rawPgCodec as PgCodecWithAttributes;
 
-        const tsvProcs = introspectionResultsByKind.procedure
-          .filter((proc) => proc.isStable)
-          .filter((proc) => proc.namespaceId === table.namespaceId)
-          .filter((proc) => proc.name.startsWith(`${table.name}_`))
-          .filter((proc) => proc.argTypeIds.length === 1)
-          .filter((proc) => proc.argTypeIds[0] === tableType.id)
-          .filter((proc) => proc.returnTypeId === pgTsvType.id)
-          .filter((proc) => !omit(proc, "order"));
+        for (const [attributeName, attribute] of Object.entries(
+          codec.attributes,
+        )) {
+          if (!isTsvectorCodec(attribute.codec)) continue;
+          const fieldName = inflection.attribute({ codec, attributeName });
+          const ascFieldName = inflection.pgTsvOrderByColumnRankEnum(
+            codec,
+            attributeName,
+            true,
+          );
+          const descFieldName = inflection.pgTsvOrderByColumnRankEnum(
+            codec,
+            attributeName,
+            false,
+          );
 
-        if (tsvColumns.length === 0 && tsvProcs.length === 0) {
-          return values;
+          const makePlan =
+            (direction: "ASC" | "DESC") => (step: PgSelectStep) => {
+              const $select = getHackedStep(build, step);
+              const hack = $select?.__fts_ranks[fieldName];
+              if (hack) {
+                const [identifier, tsQueryString] = hack;
+                step.orderBy({
+                  codec: TYPES.float,
+                  fragment: sql.fragment`ts_rank(${identifier}, to_tsquery(${tsQueryString}))`,
+                  direction,
+                });
+              }
+            };
+
+          build.extend(
+            values,
+            {
+              [ascFieldName]: {
+                extensions: {
+                  grafast: {
+                    applyPlan: makePlan("ASC"),
+                  },
+                },
+              },
+              [descFieldName]: {
+                extensions: {
+                  grafast: {
+                    applyPlan: makePlan("DESC"),
+                  },
+                },
+              },
+            },
+            `Adding orders for rank of ${attributeName} on ${context.Self.name}`,
+          );
         }
+
+        const tsvProcs = Object.values(pgRegistry.pgResources).filter(
+          (r): r is PgResource<any, any, any, PgResourceParameter[], any> => {
+            if (!isTsvectorCodec(r.codec)) return false;
+            if (!r.parameters) return false;
+            if (!r.parameters[0]) return false;
+            if (r.parameters[0].codec !== codec) return false;
+            if (!behavior.pgResourceMatches(r, "typeField")) return false;
+            if (!behavior.pgResourceMatches(r, "orderBy")) return false;
+            if (typeof r.from !== "function") return false;
+
+            // Must have only one required argument
+            // if (r.parameters.slice(1).some((p) => p.required)) return false
+
+            return true;
+          },
+        );
 
         return extend(
           values,
@@ -331,18 +393,18 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
               const fieldName =
                 attr.kind === "procedure"
                   ? inflection.computedColumn(
-                      attr.name.substr(table.name.length + 1),
+                      attr.name.substr(codec.name.length + 1),
                       attr,
-                      table,
+                      codec,
                     )
                   : inflection.column(attr);
               const ascFieldName = inflection.pgTsvOrderByColumnRankEnum(
-                table,
+                codec,
                 attr,
                 true,
               );
               const descFieldName = inflection.pgTsvOrderByColumnRankEnum(
-                table,
+                codec,
                 attr,
                 false,
               );
@@ -376,7 +438,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
 
               return memo;
             }, {}),
-          `Adding TSV rank columns for sorting on table '${table.name}'`,
+          `Adding TSV rank columns for sorting on table '${codec.name}'`,
         );
       },
     },
