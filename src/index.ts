@@ -1,5 +1,6 @@
 import { Tsquery } from "pg-tsquery";
 import type {} from "postgraphile";
+import type {} from "postgraphile-plugin-connection-filter";
 import type { SQL } from "postgraphile/pg-sql2";
 import type {
   PgCodec,

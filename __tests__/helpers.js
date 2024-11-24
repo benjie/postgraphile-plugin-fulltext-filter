@@ -1,70 +1,78 @@
+// @ts-check
 /* eslint-disable no-param-reassign */
-const pg = require('pg');
-const { readFile } = require('fs');
-const { createPostGraphileSchema } = require('postgraphile-core');
+const pg = require("pg");
+const { readFile } = require("fs/promises");
+const { makeSchema } = require("postgraphile");
+const { makeV4Preset } = require("postgraphile/presets/v4");
+const {
+  makePgService,
+  makeWithPgClientViaPgClientAlreadyInTransaction,
+} = require("postgraphile/adaptors/pg");
+const {
+  PostGraphileConnectionFilterPreset,
+} = require("postgraphile-plugin-connection-filter");
+const { default: ThisPlugin } = require("../dist/index.js");
 
 // This test suite can be flaky. Increase it’s timeout.
-jest.setTimeout(1000 * 20)
+jest.setTimeout(1000 * 20);
 
-function readFilePromise(filename, encoding) {
-  return new Promise((resolve, reject) => {
-    readFile(filename, encoding, (err, res) => {
-      if (err) reject(err);
-      else resolve(res);
-    });
-  });
-}
+const connectionString =
+  process.env.TEST_DATABASE_URL ||
+  "postgres:///postgraphile_plugin_fulltext_filter";
 
-const withPgClient = async (url, fn) => {
-  if (!fn) {
-    fn = url;
-    url = process.env.TEST_DATABASE_URL;
-  }
-  const pgPool = new pg.Pool({connectionString: url});
+let pool;
+beforeAll(() => {
+  pool = new pg.Pool({ connectionString });
+  pool.on("error", () => {});
+  pool.on("connect", (client) => client.on("error", () => {}));
+});
+
+afterAll(() => {
+  pool?.end();
+});
+
+const withPgClient = async (fn) => {
   let client;
   try {
-    client = await pgPool.connect();
-    await client.query('begin');
-    await client.query('set local timezone to \'+04:00\'');
+    client = await pool.connect();
+    await client.query("begin");
+    await client.query("set local timezone to '+04:00'");
     const result = await fn(client);
-    await client.query('rollback');
+    await client.query("rollback");
     return result;
   } finally {
     try {
       await client.release();
     } catch (e) {
-      console.error('Error releasing pgClient', e);
+      console.error("Error releasing pgClient", e);
     }
-    await pgPool.end();
   }
 };
 
-const withDbFromUrl = async (url, fn) => withPgClient(url, async (client) => {
-  try {
-    await client.query('BEGIN ISOLATION LEVEL SERIALIZABLE;');
-    return fn(client);
-  } finally {
-    await client.query('COMMIT;');
-  }
-});
-
-
-const withRootDb = fn => withDbFromUrl(process.env.TEST_DATABASE_URL, fn);
+const withRootDb = (fn) =>
+  withPgClient(async (client) => {
+    try {
+      await client.query("BEGIN ISOLATION LEVEL SERIALIZABLE;");
+      return fn(client);
+    } finally {
+      await client.query("COMMIT;");
+    }
+  });
 
 let prepopulatedDBKeepalive;
 
 const populateDatabase = async (client) => {
-  await client.query(await readFilePromise(`${__dirname}/data.sql`, 'utf8'));
+  await client.query(await readFile(`${__dirname}/data.sql`, "utf8"));
   return {};
 };
 
 const withPrepopulatedDb = async (fn) => {
   if (!prepopulatedDBKeepalive) {
-    throw new Error('You must call setup and teardown to use this');
+    throw new Error("You must call setup and teardown to use this");
   }
   const { client, vars } = prepopulatedDBKeepalive;
   if (!vars) {
-    throw new Error('No prepopulated vars');
+    throw new Error("No prepopulated vars");
   }
   let err;
   try {
@@ -73,10 +81,10 @@ const withPrepopulatedDb = async (fn) => {
     err = e;
   }
   try {
-    await client.query('ROLLBACK TO SAVEPOINT pristine;');
+    await client.query("ROLLBACK TO SAVEPOINT pristine;");
   } catch (e) {
     err = err || e;
-    console.error('ERROR ROLLING BACK', e.message); // eslint-disable-line no-console
+    console.error("ERROR ROLLING BACK", e.message); // eslint-disable-line no-console
   }
   if (err) {
     throw err;
@@ -100,10 +108,10 @@ withPrepopulatedDb.setup = (done) => {
     try {
       prepopulatedDBKeepalive.vars = await populateDatabase(client);
     } catch (e) {
-      console.error('FAILED TO PREPOPULATE DB!', e.message); // eslint-disable-line no-console
+      console.error("FAILED TO PREPOPULATE DB!", e.message); // eslint-disable-line no-console
       return done(e);
     }
-    await client.query('SAVEPOINT pristine;');
+    await client.query("SAVEPOINT pristine;");
     done();
     return prepopulatedDBKeepalive;
   });
@@ -111,44 +119,70 @@ withPrepopulatedDb.setup = (done) => {
 
 withPrepopulatedDb.teardown = () => {
   if (!prepopulatedDBKeepalive) {
-    throw new Error('Cannot tear down null!');
+    throw new Error("Cannot tear down null!");
   }
   prepopulatedDBKeepalive.resolve(); // Release DB transaction
   prepopulatedDBKeepalive = null;
 };
 
-const withSchema = ({
-  setup,
-  test,
-  options = {},
-}) => () => withPgClient(async (client) => {
-  if (setup) {
-    if (typeof setup === 'function') {
-      await setup(client);
-    } else {
-      await client.query(setup);
-    }
-  }
+/** @type {GraphileConfig.Plugin} */
+const ShoveClientIntoContextPlugin = {
+  name: "ShoveClientIntoContextPlugin",
 
-  const schemaOptions = Object.assign(
-    {
-      appendPlugins: [
-        require('postgraphile-plugin-connection-filter'),
-        require('../dist/index.js')
-      ],
-      showErrorStack: true,
+  grafast: {
+    middleware: {
+      prepareArgs(next, event) {
+        const pgClient = event.args.contextValue.pgClient;
+        if (pgClient) {
+          event.args.contextValue.withPgClient =
+            makeWithPgClientViaPgClientAlreadyInTransaction(pgClient, true);
+        }
+        return next();
+      },
     },
-    options,
-  );
+  },
+};
 
-  const schema = await createPostGraphileSchema(client, ['fulltext_test'], schemaOptions);
-  return test({
-    schema,
-    pgClient: client,
-  });
-});
+const withSchema =
+  ({ setup, test, options = {} }) =>
+  () =>
+    withPgClient(async (client) => {
+      if (setup) {
+        if (typeof setup === "function") {
+          await setup(client);
+        } else {
+          await client.query(setup);
+        }
+      }
 
-const loadQuery = fn => readFilePromise(`${__dirname}/fixtures/queries/${fn}`, 'utf8');
+      /** @type {GraphileConfig.Preset} */
+      const preset = {
+        extends: [
+          makeV4Preset({
+            // showErrorStack: true,
+            ...options,
+          }),
+          PostGraphileConnectionFilterPreset,
+        ],
+        plugins: [ThisPlugin, ShoveClientIntoContextPlugin],
+        pgServices: [
+          makePgService({
+            pool,
+            schemas: ["fulltext_test"],
+          }),
+        ],
+      };
+
+      const { schema, resolvedPreset } = await makeSchema(preset);
+      return test({
+        schema,
+        resolvedPreset,
+        pgClient: client,
+      });
+    });
+
+const loadQuery = (fn) =>
+  readFile(`${__dirname}/fixtures/queries/${fn}`, "utf8");
 
 exports.withRootDb = withRootDb;
 exports.withPrepopulatedDb = withPrepopulatedDb;
