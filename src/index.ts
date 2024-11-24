@@ -66,7 +66,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         const {
           addConnectionFilterOperator,
           sql,
-          graphql: { GraphQLString },
+          graphql: { GraphQLString, Kind },
           grafast: { lambda },
           inflection,
         } = build;
@@ -83,13 +83,21 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           {},
           () => ({
             serialize(value) {
-              return value;
+              return String(value);
             },
             parseValue(value) {
-              return value;
+              if (typeof value === "string") {
+                return tsquery.parse(value) || "";
+              } else {
+                throw new Error(`${scalarName} must be a string`);
+              }
             },
             parseLiteral(lit) {
-              return lit;
+              if (lit.kind === Kind.NULL) return null;
+              if (lit.kind !== Kind.STRING) {
+                throw new Error(`${scalarName} must be a string`);
+              }
+              return tsquery.parse(lit.value) || "";
             },
           }),
           "Adding full text scalar type",
@@ -112,15 +120,10 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         addConnectionFilterOperator(scalarName, "matches", {
           description: "Performs a full text search on the field.",
           resolveType: () => GraphQLString,
-          resolve(sqlIdentifier, sqlValue, $input, $placeholderable) {
-            const $tsQueryString = lambda(
-              $input,
-              (input) => `${tsquery.parse(input) || ""}`,
-              true,
-            );
+          resolve(sqlIdentifier, sqlValue) {
             // queryBuilder.__fts_ranks = queryBuilder.__fts_ranks || {};
             // queryBuilder.__fts_ranks[fieldName] = [identifier, tsQueryString];
-            return sql.query`${sqlIdentifier} @@ to_tsquery(${sql.value(tsQueryString)})`;
+            return sql.query`${sqlIdentifier} @@ to_tsquery(${sqlValue})`;
           },
         });
 
