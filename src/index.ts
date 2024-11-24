@@ -1,6 +1,31 @@
 import { Tsquery } from "pg-tsquery";
 import type {} from "postgraphile";
-import { omit } from "graphile-build-pg";
+import type {
+  PgCodecWithAttributes,
+  PgResource,
+  PgResourceParameter,
+} from "postgraphile/@dataplan/pg";
+
+declare global {
+  namespace GraphileBuild {
+    interface Inflection {
+      fullTextScalarTypeName(this: Inflection): string;
+      pgTsvRank(this: Inflection, fieldName: string): string;
+      pgTsvOrderByColumnRankEnum(
+        this: Inflection,
+        codec: PgCodecWithAttributes,
+        attributeName: string,
+        ascending: boolean,
+      ): string;
+      pgTsvOrderByComputedColumnRankEnum(
+        this: Inflection,
+        codec: PgCodecWithAttributes,
+        resource: PgResource<any, any, any, PgResourceParameter[], any>,
+        ascending: boolean,
+      ): string;
+    }
+  }
+}
 
 const tsquery = new Tsquery();
 
@@ -11,14 +36,23 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
       fullTextScalarTypeName() {
         return "FullText";
       },
-      pgTsvRank(fieldName) {
+      pgTsvRank(preset, fieldName) {
         return this.camelCase(`${fieldName}-rank`);
       },
-      pgTsvOrderByColumnRankEnum(table, attr, ascending) {
-        const columnName =
-          attr.kind === "procedure"
-            ? attr.name.substr(table.name.length + 1)
-            : this._columnName(attr, { skipRowId: true }); // eslint-disable-line no-underscore-dangle
+      pgTsvOrderByColumnRankEnum(preset, codec, attributeName, ascending) {
+        const columnName = this._attributeName({
+          codec,
+          attributeName,
+          skipRowId: true,
+        });
+        return this.constantCase(
+          `${columnName}_rank_${ascending ? "asc" : "desc"}`,
+        );
+      },
+      pgTsvOrderByComputedColumnRankEnum(preset, codec, resource, ascending) {
+        const columnName = this.computedAttributeField({
+          resource,
+        });
         return this.constantCase(
           `${columnName}_rank_${ascending ? "asc" : "desc"}`,
         );
