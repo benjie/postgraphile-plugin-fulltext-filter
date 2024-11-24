@@ -195,46 +195,13 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           return fields;
         }
 
-        const pgCodec = rawPgCodec as PgCodecWithAttributes;
+        const codec = rawPgCodec as PgCodecWithAttributes;
 
-        const tsvColumnNames = Object.keys(pgCodec.attributes).filter(
-          (attributeName) => {
-            if (
-              !behavior.pgCodecAttributeMatches(
-                [pgCodec, attributeName],
-                "filter",
-              )
-            ) {
-              return false;
-            }
-          },
-        );
-
-        const tsvProcs = Object.values(pgRegistry.pgResources).filter((r) => {
-          if (!isTsvectorCodec(r.codec)) return false;
-          if (!r.parameters) return false;
-          if (!r.parameters[0]) return false;
-          if (r.parameters[0].codec !== pgCodec) return false;
-          if (!behavior.pgResourceMatches(r, "typeField")) return false;
-          if (!behavior.pgResourceMatches(r, "filterBy")) return false;
-          if (typeof r.from !== "function") return false;
-
-          // Must have only one required argument
-          // if (r.parameters.slice(1).some((p) => p.required)) return false
-
-          return true;
-        });
-
-        if (tsvColumnNames.length === 0 && tsvProcs.length === 0) {
-          return fields;
-        }
-
-        for (const tsvColumnName of tsvColumnNames) {
-          const baseFieldName = inflection.attribute({
-            codec: pgCodec,
-            attributeName: tsvColumnName,
-          });
-          const fieldName = inflection.pgTsvRank(baseFieldName);
+        function addTsvField(
+          baseFieldName: string,
+          fieldName: string,
+          origin: string,
+        ) {
           build.extend(
             fields,
             {
@@ -264,24 +231,54 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
                 },
               ),
             },
-            `Adding rank field for ${tsvColumnName}`,
+            origin,
           );
         }
 
-        const tsvProcFields = tsvProcs.reduce((memo, proc) => {
-          const psuedoColumnName = proc.name.substr(pgCodec.name.length + 1);
-          const fieldName = inflection.computedColumn(
-            psuedoColumnName,
-            proc,
-            pgCodec,
+        for (const attributeName of Object.keys(codec.attributes)) {
+          if (
+            !behavior.pgCodecAttributeMatches([codec, attributeName], "filter")
+          ) {
+            continue;
+          }
+
+          const baseFieldName = inflection.attribute({ codec, attributeName });
+          const fieldName = inflection.pgTsvRank(baseFieldName);
+          addTsvField(
+            baseFieldName,
+            fieldName,
+            `Adding rank field for ${attributeName}`,
           );
-          const rankFieldName = inflection.pgTsvRank(fieldName);
-          memo[rankFieldName] = newRankField(fieldName, rankFieldName); // eslint-disable-line no-param-reassign
+        }
 
-          return memo;
-        }, {});
+        const tsvProcs = Object.values(pgRegistry.pgResources).filter(
+          (r): r is PgResource<any, any, any, PgResourceParameter[], any> => {
+            if (!isTsvectorCodec(r.codec)) return false;
+            if (!r.parameters) return false;
+            if (!r.parameters[0]) return false;
+            if (r.parameters[0].codec !== codec) return false;
+            if (!behavior.pgResourceMatches(r, "typeField")) return false;
+            if (!behavior.pgResourceMatches(r, "filterBy")) return false;
+            if (typeof r.from !== "function") return false;
 
-        return Object.assign({}, fields, tsvFields, tsvProcFields);
+            // Must have only one required argument
+            // if (r.parameters.slice(1).some((p) => p.required)) return false
+
+            return true;
+          },
+        );
+
+        for (const resource of tsvProcs) {
+          const baseFieldName = inflection.computedAttributeField({ resource });
+          const fieldName = inflection.pgTsvRank(baseFieldName);
+          addTsvField(
+            baseFieldName,
+            fieldName,
+            `Adding rank field for computed column ${resource.name} on ${context.Self.name}`,
+          );
+        }
+
+        return fields;
       },
 
       GraphQLEnumType_values(values, build, context) {
