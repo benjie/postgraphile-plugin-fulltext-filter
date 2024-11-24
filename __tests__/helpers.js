@@ -1,4 +1,5 @@
 // @ts-check
+
 /* eslint-disable no-param-reassign */
 const pg = require("pg");
 const { readFile } = require("fs/promises");
@@ -31,6 +32,7 @@ afterAll(() => {
   pool?.end();
 });
 
+/** @type {<T>(fn: (client: import("pg").PoolClient) => Promise<T> | T) => Promise<T>} */
 const withPgClient = async (fn) => {
   let client;
   try {
@@ -49,6 +51,7 @@ const withPgClient = async (fn) => {
   }
 };
 
+/** @type {<T>(fn: (client: import("pg").PoolClient) => Promise<T> | T) => Promise<T>} */
 const withRootDb = (fn) =>
   withPgClient(async (client) => {
     try {
@@ -59,13 +62,16 @@ const withRootDb = (fn) =>
     }
   });
 
+/** @type {(Promise<void> & {resolve: () => void, reject: () => void, client: import('pg').PoolClient, vars: any}) | null} */
 let prepopulatedDBKeepalive;
 
+/** @type {(client: import("pg").PoolClient) => Promise<{}>} */
 const populateDatabase = async (client) => {
   await client.query(await readFile(`${__dirname}/data.sql`, "utf8"));
   return {};
 };
 
+/** @type {{(fn: (client: import("pg").PoolClient, vars: any) => Promise<void>): Promise<void>, setup: (fn: (e?: Error) => void) => Promise<void>, teardown(): void}} */
 const withPrepopulatedDb = async (fn) => {
   if (!prepopulatedDBKeepalive) {
     throw new Error("You must call setup and teardown to use this");
@@ -84,7 +90,7 @@ const withPrepopulatedDb = async (fn) => {
     await client.query("ROLLBACK TO SAVEPOINT pristine;");
   } catch (e) {
     err = err || e;
-    console.error("ERROR ROLLING BACK", e.message); // eslint-disable-line no-console
+    console.error("ERROR ROLLING BACK", /** @type{any} */ (e)?.message); // eslint-disable-line no-console
   }
   if (err) {
     throw err;
@@ -97,17 +103,18 @@ withPrepopulatedDb.setup = (done) => {
   }
   let res;
   let rej;
-  prepopulatedDBKeepalive = new Promise((resolve, reject) => {
-    res = resolve;
-    rej = reject;
-  });
-  prepopulatedDBKeepalive.resolve = res;
-  prepopulatedDBKeepalive.reject = rej;
-  withRootDb(async (client) => {
-    prepopulatedDBKeepalive.client = client;
+  return withRootDb(async (client) => {
+    prepopulatedDBKeepalive = Object.assign(
+      new Promise((resolve, reject) => {
+        res = resolve;
+        rej = reject;
+      }),
+      { resolve: res, reject: rej, client, vars: undefined },
+    );
     try {
       prepopulatedDBKeepalive.vars = await populateDatabase(client);
-    } catch (e) {
+    } catch (err) {
+      const e = /** @type {Error} */ (err);
       console.error("FAILED TO PREPOPULATE DB!", e.message); // eslint-disable-line no-console
       return done(e);
     }
@@ -143,6 +150,7 @@ const ShoveClientIntoContextPlugin = {
   },
 };
 
+/** @type {(blah: {setup?: string | ((client: import("pg").PoolClient) => Promise<void>), test: (stuff:{schema: import("postgraphile/graphql").GraphQLSchema,resolvedPreset: GraphileConfig.ResolvedPreset, pgClient: import("pg").PoolClient}) => Promise<void>, options: import("postgraphile/presets/v4").V4Options}) => () => Promise<void>} */
 const withSchema =
   ({ setup, test, options = {} }) =>
   () =>
@@ -181,6 +189,7 @@ const withSchema =
       });
     });
 
+/** @type {(fn: string) => Promise<string>} */
 const loadQuery = (fn) =>
   readFile(`${__dirname}/fixtures/queries/${fn}`, "utf8");
 
