@@ -1,5 +1,4 @@
 // @ts-check
-
 /* eslint-disable no-param-reassign */
 const pg = require("pg");
 const { readFile } = require("fs/promises");
