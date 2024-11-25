@@ -1,4 +1,4 @@
-const { graphql } = require('graphql');
+const { graphql, lexicographicSortSchema } = require('graphql');
 const { withSchema } = require('./helpers');
 
 test(
@@ -25,7 +25,7 @@ test(
           }
         }
       `;
-      expect(schema).toMatchSnapshot();
+      expect(lexicographicSortSchema(schema)).toMatchSnapshot();
 
       const result = await graphql(schema, query, null, { pgClient });
       expect(result).not.toHaveProperty('errors');
@@ -67,7 +67,7 @@ test(
           }
         }
       `;
-      expect(schema).toMatchSnapshot();
+      expect(lexicographicSortSchema(schema)).toMatchSnapshot();
 
       const result = await graphql(schema, query, null, { pgClient });
       expect(result).not.toHaveProperty('errors');
@@ -128,7 +128,7 @@ test(
           }
         }
       `;
-      expect(schema).toMatchSnapshot();
+      expect(lexicographicSortSchema(schema)).toMatchSnapshot();
 
       const result = await graphql(schema, query, null, { pgClient });
       expect(result).not.toHaveProperty('errors');
@@ -180,7 +180,7 @@ test(
           }
         }
       `;
-      expect(schema).toMatchSnapshot();
+      expect(lexicographicSortSchema(schema)).toMatchSnapshot();
 
       const result = await graphql(schema, query, null, { pgClient });
       expect(result).not.toHaveProperty('errors');
@@ -251,7 +251,7 @@ test(
           }
         }
       `;
-      expect(schema).toMatchSnapshot();
+      expect(lexicographicSortSchema(schema)).toMatchSnapshot();
 
       const ascResult = await graphql(schema, query, null, { pgClient }, { orderBy: ['FULL_TEXT_ASC'] });
       expect(ascResult).not.toHaveProperty('errors');
@@ -318,7 +318,7 @@ test(
           }
         }
       `;
-      expect(schema).toMatchSnapshot();
+      expect(lexicographicSortSchema(schema)).toMatchSnapshot();
 
       const result = await graphql(schema, query, null, { pgClient });
       expect(result).not.toHaveProperty('errors');
@@ -380,7 +380,7 @@ test(
           }
         }
       `;
-      expect(schema).toMatchSnapshot();
+      expect(lexicographicSortSchema(schema)).toMatchSnapshot();
 
       const result = await graphql(schema, query, null, { pgClient });
       expect(result).not.toHaveProperty('errors');
