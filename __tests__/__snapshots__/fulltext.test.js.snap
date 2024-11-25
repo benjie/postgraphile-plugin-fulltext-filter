@@ -2369,8 +2369,33 @@ scalar FullText
 A filter to be used against FullText fields. All fields are combined with a logical ‘and.’
 """
 input FullTextFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: FullText
+
+  """Equal to the specified value."""
+  equalTo: FullText
+
+  """Included in the specified list."""
+  in: [FullText!]
+
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
   """Performs a full text search on the field."""
   matches: String
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: FullText
+
+  """Not equal to the specified value."""
+  notEqualTo: FullText
+
+  """Not included in the specified list."""
+  notIn: [FullText!]
 }
 
 """
