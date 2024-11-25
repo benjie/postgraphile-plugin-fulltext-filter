@@ -152,8 +152,13 @@ const ShoveClientIntoContextPlugin = {
 /** @type {(blah: {setup?: string | ((client: import("pg").PoolClient) => Promise<void>), test: (stuff:{schema: import("postgraphile/graphql").GraphQLSchema,resolvedPreset: GraphileConfig.ResolvedPreset, pgClient: import("pg").PoolClient}) => Promise<void>, options?: import("postgraphile/presets/v4").V4Options}) => () => Promise<void>} */
 const withSchema =
   ({ setup, test, options = {} }) =>
-  () =>
-    withPgClient(async (client) => {
+  async () => {
+    const client = await pool.connect();
+    try {
+      await client.query(`\
+drop schema if exists fulltext_test cascade;
+create schema fulltext_test;
+`);
       if (setup) {
         if (typeof setup === "function") {
           await setup(client);
@@ -161,7 +166,10 @@ const withSchema =
           await client.query(setup);
         }
       }
-
+    } finally {
+      client.release();
+    }
+    return withPgClient(async (client) => {
       /** @type {GraphileConfig.Preset} */
       const preset = {
         extends: [
@@ -187,6 +195,7 @@ const withSchema =
         pgClient: client,
       });
     });
+  };
 
 /** @type {(fn: string) => Promise<string>} */
 const loadQuery = (fn) =>
