@@ -2303,7 +2303,7 @@ type CreateJobPayload {
   """An edge for our \`Job\`. May be used by Relay 1."""
   jobEdge(
     """The method to use when ordering \`Job\`."""
-    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+    orderBy: [JobsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): JobsEdge
 
   """
@@ -2354,7 +2354,7 @@ type DeleteJobPayload {
   """An edge for our \`Job\`. May be used by Relay 1."""
   jobEdge(
     """The method to use when ordering \`Job\`."""
-    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+    orderBy: [JobsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): JobsEdge
 
   """
@@ -2485,7 +2485,7 @@ type JobsConnection {
   """
   A list of edges which contains the \`Job\` and cursor to aid in pagination.
   """
-  edges: [JobsEdge!]!
+  edges: [JobsEdge]!
 
   """A list of \`Job\` objects."""
   nodes: [Job]!
@@ -2630,6 +2630,8 @@ type Query implements Node {
     """The globally unique \`ID\` to be used in selecting a single \`Job\`."""
     nodeId: ID!
   ): Job
+
+  """Get a single \`Job\`."""
   jobById(id: Int!): Job
 
   """Fetches an object given its globally unique \`ID\`."""
@@ -2830,7 +2832,7 @@ type UpdateJobPayload {
   """An edge for our \`Job\`. May be used by Relay 1."""
   jobEdge(
     """The method to use when ordering \`Job\`."""
-    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+    orderBy: [JobsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): JobsEdge
 
   """
@@ -2838,7 +2840,6 @@ type UpdateJobPayload {
   """
   query: Query
 }
-
 `;
 
 exports[`works with connectionFilterRelations 1`] = `
