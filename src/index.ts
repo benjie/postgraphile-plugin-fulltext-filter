@@ -11,6 +11,8 @@ import type {
   PgSelectSingleStep,
 } from "postgraphile/@dataplan/pg";
 import type { ExecutableStep } from "postgraphile/grafast";
+import { sql } from "postgraphile/pg-sql2";
+import { listOfCodec } from "postgraphile/@dataplan/pg";
 
 declare global {
   namespace GraphileBuild {
@@ -32,6 +34,18 @@ declare global {
     }
     interface ScopeObjectFieldsField {
       isPgTSVRankField?: boolean;
+    }
+  }
+  namespace GraphileConfig {
+    interface Plugins {
+      PostGraphileFulltextFilterPlugin: true;
+    }
+
+    interface GatherHelpers {
+      pgFulltextFilter: {
+        getTsvectorCodec(): PgCodec<string, any, any, any, undefined, any, any>;
+        getTsvectorArrayCodec(): PgCodec;
+      };
     }
   }
 }
@@ -78,6 +92,25 @@ function isTsvectorCodec(codec: PgCodec) {
   );
 }
 
+interface State {
+  tsvectorCodec: PgCodec<string, any, any, any, undefined, any, any> | null;
+  tsvectorArrayCodec: PgCodec | null;
+}
+
+/**
+ * This is a TypeScript constrained identity function to save having to specify
+ * all the generics manually.
+ */
+export function gatherConfig<
+  const TNamespace extends keyof GraphileConfig.GatherHelpers,
+  const TState extends { [key: string]: any } = { [key: string]: any },
+  const TCache extends { [key: string]: any } = { [key: string]: any },
+>(
+  config: GraphileConfig.PluginGatherConfig<TNamespace, TState, TCache>,
+): GraphileConfig.PluginGatherConfig<TNamespace, TState, TCache> {
+  return config;
+}
+
 const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
   name: "PostGraphileFulltextFilterPlugin",
   inflection: {
@@ -108,6 +141,76 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
       },
     },
   },
+
+  gather: gatherConfig({
+    namespace: "pgFulltextFilter",
+    initialState: (): State => ({
+      tsvectorCodec: null,
+      tsvectorArrayCodec: null,
+    }),
+    helpers: {
+      getTsvectorCodec(info) {
+        const { EXPORTABLE } = info;
+        if (!info.state.tsvectorCodec) {
+          info.state.tsvectorCodec = EXPORTABLE(
+            (sql) => ({
+              name: "tsvector",
+              sqlType: sql`tsvector`,
+              toPg(str) {
+                return str;
+              },
+              fromPg(str) {
+                return str;
+              },
+              executor: null,
+              attributes: undefined,
+              extensions: {
+                pg: {
+                  name: "tsvector",
+                  schemaName: "pg_catalog",
+                  // TODO: remove this
+                  serviceName: "",
+                },
+              },
+            }),
+            [sql],
+          );
+        }
+        return info.state.tsvectorCodec;
+      },
+      getTsvectorArrayCodec(info) {
+        const { EXPORTABLE } = info;
+        if (!info.state.tsvectorArrayCodec) {
+          const tsvectorCodec =
+            info.helpers.pgFulltextFilter.getTsvectorCodec();
+          info.state.tsvectorArrayCodec = EXPORTABLE(
+            (listOfCodec, tsvectorCodec) => listOfCodec(tsvectorCodec),
+            [listOfCodec, tsvectorCodec],
+          );
+        }
+        return info.state.tsvectorArrayCodec;
+      },
+    },
+    hooks: {
+      async pgCodecs_findPgCodec(info, event) {
+        // If another plugin has already supplied a codec; skip
+        if (event.pgCodec) return;
+
+        const { pgType } = event;
+        if (
+          pgType.typname === "tsvector" &&
+          pgType.getNamespace()?.nspname === "pg_catalog"
+        ) {
+          event.pgCodec = info.helpers.pgFulltextFilter.getTsvectorCodec();
+        } else if (
+          pgType.typname === "_tsvector" &&
+          pgType.getNamespace()?.nspname === "pg_catalog"
+        ) {
+          event.pgCodec = info.helpers.pgFulltextFilter.getTsvectorArrayCodec();
+        }
+      },
+    },
+  }),
 
   schema: {
     hooks: {
@@ -250,7 +353,10 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
 
         for (const attributeName of Object.keys(codec.attributes)) {
           if (
-            !behavior.pgCodecAttributeMatches([codec, attributeName], "filter")
+            !behavior.pgCodecAttributeMatches(
+              [codec, attributeName],
+              "attribute:filterBy",
+            )
           ) {
             continue;
           }
@@ -271,7 +377,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
             if (!r.parameters[0]) return false;
             if (r.parameters[0].codec !== codec) return false;
             if (!behavior.pgResourceMatches(r, "typeField")) return false;
-            if (!behavior.pgResourceMatches(r, "filterBy")) return false;
+            if (!behavior.pgResourceMatches(r, "proc:filterBy")) return false;
             if (typeof r.from !== "function") return false;
 
             // Must have only one required argument

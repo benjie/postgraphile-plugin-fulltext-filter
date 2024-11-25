@@ -18,6 +18,9 @@
     "test": "yarn prepack && scripts/test jest -i",
     "lint": "eslint index.js src/**/*.js"
   },
+  "peerDependencies": {
+    "postgraphile": "^5.0.0-beta.33"
+  },
   "dependencies": {
     "pg-tsquery": "^8.4.2"
   },
