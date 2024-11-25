@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`fulltext search field is created 1`] = `
+exports[`fulltext search field is created (1) 1`] = `
 """All input for the create \`Job\` mutation."""
 input CreateJobInput {
   """
@@ -565,7 +565,7 @@ type UpdateJobPayload {
 
 `;
 
-exports[`fulltext search field is created 2`] = `
+exports[`fulltext search field is created 1`] = `
 """All input for the create \`Job\` mutation."""
 input CreateJobInput {
   """

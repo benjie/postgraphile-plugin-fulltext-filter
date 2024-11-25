@@ -34,7 +34,7 @@ test(
 );
 
 test(
-  'fulltext search field is created',
+  'fulltext search field is created (1)',
   withSchema({
     setup: `
       create table fulltext_test.job (
