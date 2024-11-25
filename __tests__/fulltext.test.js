@@ -1,5 +1,5 @@
 // @ts-check
-const { lexicographicSortSchema } = require('graphql');
+const { lexicographicSortSchema } = require("graphql");
 const { isAsyncIterable, grafast } = require("postgraphile/grafast");
 const { withSchema } = require("./helpers");
 
@@ -45,7 +45,7 @@ test(
 );
 
 test(
-  'fulltext search field is created (1)',
+  "fulltext search field is created (1)",
   withSchema({
     setup: `
       create table fulltext_test.job (
