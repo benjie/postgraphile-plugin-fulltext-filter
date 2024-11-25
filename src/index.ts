@@ -313,10 +313,9 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
             { fieldName },
           ) {
             const sqlValue = $placeholderable.placeholder($input, TYPES.text);
-            // queryBuilder.__fts_ranks = queryBuilder.__fts_ranks || {};
             const $s = getHackedStep(build, $placeholderable as any);
             if ($s) {
-              // queryBuilder.__fts_ranks[fieldName] = [identifier, tsQueryString];
+              /* DO NOT DO THIS */
               $s.__fts_ranks![fieldName!] = [sqlIdentifier, sqlValue];
             }
 
