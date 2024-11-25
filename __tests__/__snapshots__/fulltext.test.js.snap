@@ -27,7 +27,7 @@ type CreateJobPayload {
   """An edge for our \`Job\`. May be used by Relay 1."""
   jobEdge(
     """The method to use when ordering \`Job\`."""
-    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+    orderBy: [JobsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): JobsEdge
 
   """
@@ -78,7 +78,7 @@ type DeleteJobPayload {
   """An edge for our \`Job\`. May be used by Relay 1."""
   jobEdge(
     """The method to use when ordering \`Job\`."""
-    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+    orderBy: [JobsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): JobsEdge
 
   """
@@ -93,8 +93,33 @@ scalar FullText
 A filter to be used against FullText fields. All fields are combined with a logical ‘and.’
 """
 input FullTextFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: FullText
+
+  """Equal to the specified value."""
+  equalTo: FullText
+
+  """Included in the specified list."""
+  in: [FullText!]
+
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
   """Performs a full text search on the field."""
   matches: String
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: FullText
+
+  """Not equal to the specified value."""
+  notEqualTo: FullText
+
+  """Not included in the specified list."""
+  notIn: [FullText!]
 }
 
 """
@@ -209,7 +234,7 @@ type JobsConnection {
   """
   A list of edges which contains the \`Job\` and cursor to aid in pagination.
   """
-  edges: [JobsEdge!]!
+  edges: [JobsEdge]!
 
   """A list of \`Job\` objects."""
   nodes: [Job]!
@@ -354,6 +379,8 @@ type Query implements Node {
     """The globally unique \`ID\` to be used in selecting a single \`Job\`."""
     nodeId: ID!
   ): Job
+
+  """Get a single \`Job\`."""
   jobById(id: Int!): Job
 
   """Fetches an object given its globally unique \`ID\`."""
@@ -554,7 +581,7 @@ type UpdateJobPayload {
   """An edge for our \`Job\`. May be used by Relay 1."""
   jobEdge(
     """The method to use when ordering \`Job\`."""
-    orderBy: [JobsOrderBy!] = [PRIMARY_KEY_ASC]
+    orderBy: [JobsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): JobsEdge
 
   """
@@ -562,7 +589,6 @@ type UpdateJobPayload {
   """
   query: Query
 }
-
 `;
 
 exports[`fulltext search field is created 1`] = `
