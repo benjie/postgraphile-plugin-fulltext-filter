@@ -316,10 +316,12 @@ test(
       const ascResult = await grafast({
         schema,
         source: query,
-        rootValue: { pgClient },
+        contextValue: { pgClient },
         variableValues: { orderBy: ["FULL_TEXT_ASC"] },
+        resolvedPreset,
+        requestContext: {},
       });
-      if (isAsyncIterable(result)) {
+      if (isAsyncIterable(ascResult)) {
         throw new Error(`Didn't expect an async iterable`);
       }
       expect(ascResult).not.toHaveProperty("errors");
@@ -332,7 +334,7 @@ test(
         resolvedPreset,
         requestContext: {},
       });
-      if (isAsyncIterable(result)) {
+      if (isAsyncIterable(descResult)) {
         throw new Error(`Didn't expect an async iterable`);
       }
       expect(descResult).not.toHaveProperty("errors");
