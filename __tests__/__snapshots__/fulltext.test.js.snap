@@ -3104,7 +3104,7 @@ type ClientsConnection {
   """
   A list of edges which contains the \`Client\` and cursor to aid in pagination.
   """
-  edges: [ClientsEdge!]!
+  edges: [ClientsEdge]!
 
   """A list of \`Client\` objects."""
   nodes: [Client]!
@@ -3160,7 +3160,7 @@ type CreateClientPayload {
   """An edge for our \`Client\`. May be used by Relay 1."""
   clientEdge(
     """The method to use when ordering \`Client\`."""
-    orderBy: [ClientsOrderBy!] = [PRIMARY_KEY_ASC]
+    orderBy: [ClientsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): ClientsEdge
 
   """
@@ -3204,7 +3204,7 @@ type CreateOrderPayload {
   """An edge for our \`Order\`. May be used by Relay 1."""
   orderEdge(
     """The method to use when ordering \`Order\`."""
-    orderBy: [OrdersOrderBy!] = [PRIMARY_KEY_ASC]
+    orderBy: [OrdersOrderBy!]! = [PRIMARY_KEY_ASC]
   ): OrdersEdge
 
   """
@@ -3248,7 +3248,7 @@ type DeleteClientPayload {
   """An edge for our \`Client\`. May be used by Relay 1."""
   clientEdge(
     """The method to use when ordering \`Client\`."""
-    orderBy: [ClientsOrderBy!] = [PRIMARY_KEY_ASC]
+    orderBy: [ClientsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): ClientsEdge
 
   """
@@ -3306,7 +3306,7 @@ type DeleteOrderPayload {
   """An edge for our \`Order\`. May be used by Relay 1."""
   orderEdge(
     """The method to use when ordering \`Order\`."""
-    orderBy: [OrdersOrderBy!] = [PRIMARY_KEY_ASC]
+    orderBy: [OrdersOrderBy!]! = [PRIMARY_KEY_ASC]
   ): OrdersEdge
 
   """
@@ -3321,8 +3321,33 @@ scalar FullText
 A filter to be used against FullText fields. All fields are combined with a logical ‘and.’
 """
 input FullTextFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: FullText
+
+  """Equal to the specified value."""
+  equalTo: FullText
+
+  """Included in the specified list."""
+  in: [FullText!]
+
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
   """Performs a full text search on the field."""
   matches: String
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: FullText
+
+  """Not equal to the specified value."""
+  notEqualTo: FullText
+
+  """Not included in the specified list."""
+  notIn: [FullText!]
 }
 
 """
@@ -3549,7 +3574,7 @@ type OrdersConnection {
   """
   A list of edges which contains the \`Order\` and cursor to aid in pagination.
   """
-  edges: [OrdersEdge!]!
+  edges: [OrdersEdge]!
 
   """A list of \`Order\` objects."""
   nodes: [Order]!
@@ -3677,6 +3702,8 @@ type Query implements Node {
     """The globally unique \`ID\` to be used in selecting a single \`Client\`."""
     nodeId: ID!
   ): Client
+
+  """Get a single \`Client\`."""
   clientById(id: Int!): Client
 
   """Fetches an object given its globally unique \`ID\`."""
@@ -3695,6 +3722,8 @@ type Query implements Node {
     """The globally unique \`ID\` to be used in selecting a single \`Order\`."""
     nodeId: ID!
   ): Order
+
+  """Get a single \`Order\`."""
   orderById(id: Int!): Order
 
   """
@@ -3878,7 +3907,7 @@ type UpdateClientPayload {
   """An edge for our \`Client\`. May be used by Relay 1."""
   clientEdge(
     """The method to use when ordering \`Client\`."""
-    orderBy: [ClientsOrderBy!] = [PRIMARY_KEY_ASC]
+    orderBy: [ClientsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): ClientsEdge
 
   """
@@ -3944,7 +3973,7 @@ type UpdateOrderPayload {
   """An edge for our \`Order\`. May be used by Relay 1."""
   orderEdge(
     """The method to use when ordering \`Order\`."""
-    orderBy: [OrdersOrderBy!] = [PRIMARY_KEY_ASC]
+    orderBy: [OrdersOrderBy!]! = [PRIMARY_KEY_ASC]
   ): OrdersEdge
 
   """
@@ -3952,7 +3981,6 @@ type UpdateOrderPayload {
   """
   query: Query
 }
-
 `;
 
 exports[`works with connectionFilterRelations with no local filter 1`] = `
