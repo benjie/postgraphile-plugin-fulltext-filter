@@ -116,7 +116,6 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           addConnectionFilterOperator,
           sql,
           graphql: { GraphQLString, Kind },
-          dataplanPg: { PgConditionStep, PgSelectStep },
           inflection,
         } = build;
 
