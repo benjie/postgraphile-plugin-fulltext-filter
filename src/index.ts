@@ -57,6 +57,27 @@ type HackedPgSelectStep = PgSelectStep & {
   __fts_ranks: Record<string, [identifier: SQL, value: SQL]>;
 };
 
+function copyHacks(
+  build: GraphileBuild.Build,
+  $from: HackedPgSelectStep,
+  $to: ExecutableStep,
+) {
+  const $otherSelect = getHackedStep(build, $to);
+  if ($otherSelect) {
+    for (const key in $from.__fts_ranks) {
+      if (!$otherSelect.__fts_ranks[key]) {
+        $otherSelect.__fts_ranks[key] = $from.__fts_ranks[key];
+      } else {
+        console.warn(
+          `Refused to overwrite __fts_ranks[${key}] since it was already set`,
+        );
+      }
+    }
+  } else {
+    console.log(`Couldn't get hacked step`);
+  }
+}
+
 /*
  * Hacks on hacks on hacks... Don't do this because it breaks
  * normalized caching - we're only doing it to maintain backwards
@@ -75,7 +96,22 @@ function getHackedStep(build: GraphileBuild.Build, $someStep: ExecutableStep) {
   }
   if ($step instanceof PgSelectStep) {
     const $s = $step as HackedPgSelectStep;
-    $s.__fts_ranks ??= Object.create(null);
+    if (!$s.__fts_ranks) {
+      $s.__fts_ranks = Object.create(null);
+      $s.setInliningForbidden();
+      const dedupeBefore = $s.deduplicatedWith;
+      $s.deduplicatedWith = function ($otherStep, ...rest) {
+        copyHacks(build, this, $otherStep);
+        return dedupeBefore?.call(this, $otherStep, ...rest);
+      };
+
+      const cloneBefore = $s.clone;
+      $s.clone = function (...args) {
+        const $otherSelect = cloneBefore.apply(this, args);
+        copyHacks(build, this, $otherSelect);
+        return $otherSelect;
+      };
+    }
     return $s;
   } else {
     console.log(`${$step} was not a PgSelectStep... unable to cache rank`);
@@ -219,6 +255,8 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           addConnectionFilterOperator,
           sql,
           graphql: { GraphQLString, Kind },
+          grafast: { lambda },
+          dataplanPg: { TYPES },
           inflection,
         } = build;
 
@@ -269,16 +307,17 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           resolveType: () => GraphQLString,
           resolve(
             sqlIdentifier,
-            sqlValue,
+            _sqlValue,
             $input,
             $placeholderable,
             { fieldName },
           ) {
+            const sqlValue = $placeholderable.placeholder($input, TYPES.text);
             // queryBuilder.__fts_ranks = queryBuilder.__fts_ranks || {};
             const $s = getHackedStep(build, $placeholderable as any);
             if ($s) {
               // queryBuilder.__fts_ranks[fieldName] = [identifier, tsQueryString];
-              $s.__fts_ranks![fieldName] = [sqlIdentifier, sqlValue];
+              $s.__fts_ranks![fieldName!] = [sqlIdentifier, sqlValue];
             }
 
             return sql.query`${sqlIdentifier} @@ to_tsquery(${sqlValue})`;
