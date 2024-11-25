@@ -351,7 +351,10 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           );
         }
 
-        for (const attributeName of Object.keys(codec.attributes)) {
+        for (const [attributeName, attribute] of Object.entries(
+          codec.attributes,
+        )) {
+          if (!isTsvectorCodec(attribute.codec)) continue;
           if (
             !behavior.pgCodecAttributeMatches(
               [codec, attributeName],
@@ -446,6 +449,15 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           codec.attributes,
         )) {
           if (!isTsvectorCodec(attribute.codec)) continue;
+          if (
+            !behavior.pgCodecAttributeMatches(
+              [codec, attributeName],
+              "attribute:filterBy",
+            )
+          ) {
+            continue;
+          }
+
           const fieldName = inflection.attribute({ codec, attributeName });
           const ascFieldName = inflection.pgTsvOrderByColumnRankEnum(
             codec,
