@@ -19,7 +19,7 @@
     "lint": "eslint index.js src/**/*.js"
   },
   "peerDependencies": {
-    "postgraphile": "^5.0.0-beta.33"
+    "postgraphile": "^5.0.0-beta.34"
   },
   "dependencies": {
     "pg-tsquery": "^8.4.2"
@@ -33,7 +33,7 @@
     "jest-junit": "^16.0.0",
     "jest-serializer-graphql-schema": "^5.0.0-beta.3",
     "pg": ">=6.1.0 <9",
-    "postgraphile": "^5.0.0-beta.33",
+    "postgraphile": "^5.0.0-beta.34",
     "postgraphile-plugin-connection-filter": "^3.0.0-beta.7",
     "prettier": "^3.3.3",
     "typescript": "^5.7.2"
