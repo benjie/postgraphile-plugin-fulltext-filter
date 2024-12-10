@@ -49,7 +49,7 @@
     ]
   },
   "files": [
-    "src"
+    "dist"
   ],
   "eslintConfig": {
     "parserOptions": {
