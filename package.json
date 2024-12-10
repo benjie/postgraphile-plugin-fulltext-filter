@@ -1,6 +1,6 @@
 {
   "name": "@graphile-contrib/postgraphile-plugin-fulltext-filter",
-  "version": "2.0.0-beta.0",
+  "version": "2.0.0-beta.1",
   "description": "Full text searching on tsvector fields for use with postgraphile-plugin-connection-filter",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
