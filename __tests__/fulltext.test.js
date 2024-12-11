@@ -486,3 +486,92 @@ test(
     },
   }),
 );
+
+test(
+  "search with :* works",
+  withSchema({
+    setup: `
+      create table fulltext_test.job (
+        id serial primary key,
+        name text not null,
+        full_text tsvector
+      );
+      insert into fulltext_test.job (name, full_text) values 
+        ('test', to_tsvector('apple fruit')), 
+        ('test 2', to_tsvector('banana fruit'));
+    `,
+    test: async ({ schema, resolvedPreset, pgClient }) => {
+      const source = `
+        query {
+          allJobs(
+            filter: {
+              fullText: {
+                matches: "fruit:*"
+              }
+            }
+            orderBy: [
+              FULL_TEXT_RANK_ASC 
+            ]
+          ) {
+            nodes {
+              id
+              name
+              fullTextRank
+            }
+          }
+        }
+      `;
+
+      const result = await grafast({
+        schema,
+        source,
+        contextValue: { pgClient },
+        resolvedPreset,
+        requestContext: {},
+      });
+      if (isAsyncIterable(result)) {
+        throw new Error(`Didn't expect an async iterable`);
+      }
+      expect(result).not.toHaveProperty("errors");
+
+      const data = result.data.allJobs.nodes;
+      expect(data).toHaveLength(2);
+      data.map((n) => expect(n.fullTextRank).not.toBeNull());
+
+      const bananaQuery = `
+        query {
+          allJobs(
+            filter: {
+              fullText: {
+                matches: "ban:*"
+              }
+            }
+          ) {
+            nodes {
+              id
+              name
+              fullTextRank
+            }
+          }
+        }
+      `;
+      const bananaResult = await grafast({
+        schema,
+        source: bananaQuery,
+        contextValue: {
+          pgClient,
+        },
+        resolvedPreset,
+        requestContext: {},
+      });
+      if (isAsyncIterable(result)) {
+        throw new Error(`Didn't expect an async iterable`);
+      }
+      expect(bananaResult).not.toHaveProperty("errors");
+
+      const bananaData = bananaResult.data.allJobs.nodes;
+      expect(bananaData).toHaveLength(1);
+      bananaData.map((n) => expect(n.fullTextRank).not.toBeNull());
+    },
+  }),
+);

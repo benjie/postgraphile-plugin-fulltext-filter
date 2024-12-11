@@ -1,0 +1,650 @@
+import { Tsquery } from "pg-tsquery";
+import type {} from "postgraphile";
+import type {} from "postgraphile-plugin-connection-filter";
+import type { SQL } from "postgraphile/pg-sql2";
+import type {
+  PgCodec,
+  PgCodecWithAttributes,
+  PgResource,
+  PgResourceParameter,
+  PgSelectStep,
+  PgSelectSingleStep,
+} from "postgraphile/@dataplan/pg";
+import type { ExecutableStep } from "postgraphile/grafast";
+import { sql } from "postgraphile/pg-sql2";
+import { listOfCodec } from "postgraphile/@dataplan/pg";
+
+declare global {
+  namespace GraphileBuild {
+    interface Inflection {
+      fullTextScalarTypeName(this: Inflection): string;
+      tsqueryScalarTypeName(this: Inflection): string;
+      pgTsvRank(this: Inflection, fieldName: string): string;
+      pgTsvOrderByColumnRankEnum(
+        this: Inflection,
+        codec: PgCodecWithAttributes,
+        attributeName: string,
+        ascending: boolean,
+      ): string;
+      pgTsvOrderByComputedColumnRankEnum(
+        this: Inflection,
+        codec: PgCodecWithAttributes,
+        resource: PgResource<any, any, any, PgResourceParameter[], any>,
+        ascending: boolean,
+      ): string;
+    }
+    interface ScopeObjectFieldsField {
+      isPgTSVRankField?: boolean;
+    }
+  }
+  namespace GraphileConfig {
+    interface Plugins {
+      PostGraphileFulltextFilterPlugin: true;
+    }
+
+    interface GatherHelpers {
+      pgFulltextFilter: {
+        getTsvectorCodec(): PgCodec<string, any, any, any, undefined, any, any>;
+        getTsvectorArrayCodec(): PgCodec;
+        getTsqueryCodec(): PgCodec<string, any, any, any, undefined, any, any>;
+        getTsqueryArrayCodec(): PgCodec;
+      };
+    }
+  }
+}
+
+/**
+ * DO NOT DO THIS!
+ */
+type HackedPgSelectStep = PgSelectStep & {
+  __fts_ranks: Record<string, [identifier: SQL, value: SQL]>;
+};
+
+function copyHacks(
+  build: GraphileBuild.Build,
+  $from: HackedPgSelectStep,
+  $to: ExecutableStep,
+) {
+  const $otherSelect = getHackedStep(build, $to);
+  if ($otherSelect) {
+    for (const key in $from.__fts_ranks) {
+      if (!$otherSelect.__fts_ranks[key]) {
+        $otherSelect.__fts_ranks[key] = $from.__fts_ranks[key];
+      } else {
+        console.warn(
+          `Refused to overwrite __fts_ranks[${key}] since it was already set`,
+        );
+      }
+    }
+  } else {
+    console.log(`Couldn't get hacked step`);
+  }
+}
+
+/*
+ * Hacks on hacks on hacks... Don't do this because it breaks
+ * normalized caching - we're only doing it to maintain backwards
+ * compatibility.
+ */
+function getHackedStep(build: GraphileBuild.Build, $someStep: ExecutableStep) {
+  const {
+    dataplanPg: { PgConditionStep, PgSelectStep, PgSelectSingleStep },
+  } = build;
+  let $step = $someStep;
+  while ($step instanceof PgConditionStep) {
+    $step = ($step as any).$parent;
+  }
+  if ($step instanceof PgSelectSingleStep) {
+    $step = $step.getClassStep();
+  }
+  if ($step instanceof PgSelectStep) {
+    const $s = $step as HackedPgSelectStep;
+    if (!$s.__fts_ranks) {
+      $s.__fts_ranks = Object.create(null);
+      $s.setInliningForbidden();
+      const dedupeBefore = $s.deduplicatedWith;
+      $s.deduplicatedWith = function ($otherStep, ...rest) {
+        copyHacks(build, this, $otherStep);
+        return dedupeBefore?.call(this, $otherStep, ...rest);
+      };
+
+      const cloneBefore = $s.clone;
+      $s.clone = function (...args) {
+        const $otherSelect = cloneBefore.apply(this, args);
+        copyHacks(build, this, $otherSelect);
+        return $otherSelect;
+      };
+    }
+    return $s;
+  } else {
+    console.log(`${$step} was not a PgSelectStep... unable to cache rank`);
+    return null;
+  }
+}
+
+const tsquery = new Tsquery();
+
+function isTsvectorCodec(codec: PgCodec) {
+  return (
+    codec.extensions?.pg?.schemaName === "pg_catalog" &&
+    codec.extensions?.pg?.name === "tsvector"
+  );
+}
+
+function isTsQueryCodec(codec: PgCodec) {
+  return (
+    codec.extensions?.pg?.schemaName === "pg_catalog" &&
+    codec.extensions?.pg?.name === "tsquery"
+  );
+}
+
+interface State {
+  tsqueryCodec: PgCodec<string, any, any, any, undefined, any, any> | null;
+  tsqueryArrayCodec: PgCodec | null;
+  tsvectorCodec: PgCodec<string, any, any, any, undefined, any, any> | null;
+  tsvectorArrayCodec: PgCodec | null;
+}
+
+/**
+ * This is a TypeScript constrained identity function to save having to specify
+ * all the generics manually.
+ */
+export function gatherConfig<
+  const TNamespace extends keyof GraphileConfig.GatherHelpers,
+  const TState extends { [key: string]: any } = { [key: string]: any },
+  const TCache extends { [key: string]: any } = { [key: string]: any },
+>(
+  config: GraphileConfig.PluginGatherConfig<TNamespace, TState, TCache>,
+): GraphileConfig.PluginGatherConfig<TNamespace, TState, TCache> {
+  return config;
+}
+
+const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
+  name: "PostGraphileFulltextFilterPlugin",
+  inflection: {
+    add: {
+      fullTextScalarTypeName() {
+        return "FullText";
+      },
+      tsqueryScalarTypeName() {
+        return "TsQuery";
+      },
+      pgTsvRank(preset, fieldName) {
+        return this.camelCase(`${fieldName}-rank`);
+      },
+      pgTsvOrderByColumnRankEnum(preset, codec, attributeName, ascending) {
+        const columnName = this._attributeName({
+          codec,
+          attributeName,
+          skipRowId: true,
+        });
+        return this.constantCase(
+          `${columnName}_rank_${ascending ? "asc" : "desc"}`,
+        );
+      },
+      pgTsvOrderByComputedColumnRankEnum(preset, codec, resource, ascending) {
+        const columnName = this.computedAttributeField({
+          resource,
+        });
+        return this.constantCase(
+          `${columnName}_rank_${ascending ? "asc" : "desc"}`,
+        );
+      },
+    },
+  },
+
+  gather: gatherConfig({
+    namespace: "pgFulltextFilter",
+    initialState: (): State => ({
+      tsqueryCodec: null,
+      tsqueryArrayCodec: null,
+      tsvectorCodec: null,
+      tsvectorArrayCodec: null,
+    }),
+    helpers: {
+      getTsvectorCodec(info) {
+        const { EXPORTABLE } = info;
+        if (!info.state.tsvectorCodec) {
+          info.state.tsvectorCodec = EXPORTABLE(
+            (sql) => ({
+              name: "tsvector",
+              sqlType: sql`tsvector`,
+              toPg(str) {
+                return str;
+              },
+              fromPg(str) {
+                return str;
+              },
+              executor: null,
+              attributes: undefined,
+              extensions: {
+                pg: {
+                  name: "tsvector",
+                  schemaName: "pg_catalog",
+                  // TODO: remove this
+                  serviceName: "",
+                },
+              },
+            }),
+            [sql],
+          );
+        }
+        return info.state.tsvectorCodec;
+      },
+      getTsvectorArrayCodec(info) {
+        const { EXPORTABLE } = info;
+        if (!info.state.tsvectorArrayCodec) {
+          const tsvectorCodec =
+            info.helpers.pgFulltextFilter.getTsvectorCodec();
+          info.state.tsvectorArrayCodec = EXPORTABLE(
+            (listOfCodec, tsvectorCodec) => listOfCodec(tsvectorCodec),
+            [listOfCodec, tsvectorCodec],
+          );
+        }
+        return info.state.tsvectorArrayCodec;
+      },
+      getTsqueryCodec(info) {
+        const { EXPORTABLE } = info;
+        if (!info.state.tsqueryCodec) {
+          info.state.tsqueryCodec = EXPORTABLE(
+            (sql) => ({
+              name: "tsquery",
+              sqlType: sql`tsquery`,
+              toPg(str) {
+                return str;
+              },
+              fromPg(str) {
+                return str;
+              },
+              executor: null,
+              attributes: undefined,
+              extensions: {
+                pg: {
+                  name: "tsquery",
+                  schemaName: "pg_catalog",
+                  // TODO: remove this
+                  serviceName: "",
+                },
+              },
+            }),
+            [sql],
+          );
+        }
+        return info.state.tsqueryCodec;
+      },
+      getTsqueryArrayCodec(info) {
+        const { EXPORTABLE } = info;
+        if (!info.state.tsqueryArrayCodec) {
+          const tsqueryCodec = info.helpers.pgFulltextFilter.getTsqueryCodec();
+          info.state.tsqueryArrayCodec = EXPORTABLE(
+            (listOfCodec, tsqueryCodec) => listOfCodec(tsqueryCodec),
+            [listOfCodec, tsqueryCodec],
+          );
+        }
+        return info.state.tsqueryArrayCodec;
+      },
+    },
+    hooks: {
+      async pgCodecs_findPgCodec(info, event) {
+        // If another plugin has already supplied a codec; skip
+        if (event.pgCodec) return;
+
+        const { pgType } = event;
+
+        if (
+          pgType.typname === "tsquery" &&
+          pgType.getNamespace()?.nspname === "pg_catalog"
+        ) {
+          event.pgCodec = info.helpers.pgFulltextFilter.getTsqueryCodec();
+        } else if (
+          pgType.typname === "_tsquery" &&
+          pgType.getNamespace()?.nspname === "pg_catalog"
+        ) {
+          event.pgCodec = info.helpers.pgFulltextFilter.getTsqueryArrayCodec();
+        }
+
+        if (
+          pgType.typname === "tsvector" &&
+          pgType.getNamespace()?.nspname === "pg_catalog"
+        ) {
+          event.pgCodec = info.helpers.pgFulltextFilter.getTsvectorCodec();
+        } else if (
+          pgType.typname === "_tsvector" &&
+          pgType.getNamespace()?.nspname === "pg_catalog"
+        ) {
+          event.pgCodec = info.helpers.pgFulltextFilter.getTsvectorArrayCodec();
+        }
+      },
+    },
+  }),
+
+  schema: {
+    hooks: {
+      init(_, build) {
+        const {
+          addConnectionFilterOperator,
+          sql,
+          graphql: { GraphQLString, Kind },
+          grafast: { lambda },
+          dataplanPg: { TYPES },
+          inflection,
+        } = build;
+
+        if (!(addConnectionFilterOperator instanceof Function)) {
+          throw new Error(
+            "PostGraphileFulltextFilterPlugin requires PostGraphileConnectionFilterPlugin to be loaded before it.",
+          );
+        }
+
+        const fullTextScalarName = inflection.fullTextScalarTypeName();
+        build.registerScalarType(
+          fullTextScalarName,
+          {},
+          () => ({
+            serialize(value) {
+              return String(value);
+            },
+            parseValue(value) {
+              if (typeof value === "string") {
+                return tsquery.parse(value) || "";
+              } else {
+                throw new Error(`${fullTextScalarName} must be a string`);
+              }
+            },
+            parseLiteral(lit) {
+              if (lit.kind === Kind.NULL) return null;
+              if (lit.kind !== Kind.STRING) {
+                throw new Error(`${fullTextScalarName} must be a string`);
+              }
+              return tsquery.parse(lit.value) || "";
+            },
+          }),
+          "Adding full text scalar type",
+        );
+
+        const tsvectorCodecs = [...build.allPgCodecs].filter(isTsvectorCodec);
+
+        for (const tsvectorCodec of tsvectorCodecs) {
+          build.setGraphQLTypeForPgCodec(
+            tsvectorCodec,
+            ["input", "output"],
+            fullTextScalarName,
+          );
+        }
+
+        const tsQueryScalarName = inflection.tsqueryScalarTypeName();
+
+        const tsqueryCodecs = [...build.allPgCodecs].filter(isTsQueryCodec);
+
+        for (const tsqueryCodec of tsqueryCodecs) {
+          build.setGraphQLTypeForPgCodec(
+            tsqueryCodec,
+            ["input", "output"],
+            tsQueryScalarName,
+          );
+        }
+
+        addConnectionFilterOperator(tsQueryScalarName, "matches", {
+          description: "Performs a full text search on the field.",
+          resolveType: () => GraphQLString,
+          resolve(
+            sqlIdentifier,
+            _sqlValue,
+            $input,
+            $placeholderable,
+            { fieldName },
+          ) {
+            const sqlValue = $placeholderable.placeholder($input, TYPES.text);
+            const $s = getHackedStep(build, $placeholderable as any);
+            if ($s) {
+              /* DO NOT DO THIS */
+              $s.__fts_ranks![fieldName!] = [sqlIdentifier, sqlValue];
+            }
+
+            return sql.query`${sqlIdentifier} @@ to_tsquery(${sqlValue})`;
+          },
+        });
+
+        return _;
+      },
+
+      GraphQLObjectType_fields(fields, build, context) {
+        const {
+          dataplanPg: { TYPES },
+          grafast: { constant },
+          graphql: { GraphQLFloat },
+          input: { pgRegistry },
+          sql,
+          inflection,
+          behavior,
+        } = build;
+
+        const {
+          scope: {
+            isPgClassType, // isPgRowType, isPgCompoundType,
+            pgCodec: rawPgCodec,
+          },
+          fieldWithHooks,
+        } = context;
+
+        if (!isPgClassType || !rawPgCodec?.attributes) {
+          return fields;
+        }
+
+        const codec = rawPgCodec as PgCodecWithAttributes;
+
+        function addTsvField(
+          baseFieldName: string,
+          fieldName: string,
+          origin: string,
+        ) {
+          build.extend(
+            fields,
+            {
+              [fieldName]: fieldWithHooks(
+                {
+                  fieldName,
+                  isPgTSVRankField: true,
+                },
+                () => {
+                  return {
+                    description: `Full-text search ranking when filtered by \`${baseFieldName}\`.`,
+                    type: GraphQLFloat,
+                    plan($step) {
+                      const $row = $step as PgSelectSingleStep;
+                      const $select = getHackedStep(build, $row);
+                      const hack = $select?.__fts_ranks[baseFieldName];
+                      if (!hack) {
+                        return constant(null);
+                      }
+                      const [identifier, tsQueryString] = hack;
+                      return $row.select(
+                        sql.fragment`ts_rank(${identifier}, to_tsquery(${tsQueryString}))`,
+                        TYPES.float,
+                      );
+                    },
+                  };
+                },
+              ),
+            },
+            origin,
+          );
+        }
+
+        for (const [attributeName, attribute] of Object.entries(
+          codec.attributes,
+        )) {
+          if (!isTsvectorCodec(attribute.codec)) continue;
+          if (
+            !behavior.pgCodecAttributeMatches(
+              [codec, attributeName],
+              "attribute:filterBy",
+            )
+          ) {
+            continue;
+          }
+
+          const baseFieldName = inflection.attribute({ codec, attributeName });
+          const fieldName = inflection.pgTsvRank(baseFieldName);
+          addTsvField(
+            baseFieldName,
+            fieldName,
+            `Adding rank field for ${attributeName}`,
+          );
+        }
+
+        const tsvProcs = Object.values(pgRegistry.pgResources).filter(
+          (r): r is PgResource<any, any, any, PgResourceParameter[], any> => {
+            if (!isTsvectorCodec(r.codec)) return false;
+            if (!r.parameters) return false;
+            if (!r.parameters[0]) return false;
+            if (r.parameters[0].codec !== codec) return false;
+            if (!behavior.pgResourceMatches(r, "typeField")) return false;
+            if (!behavior.pgResourceMatches(r, "proc:filterBy")) return false;
+            if (typeof r.from !== "function") return false;
+
+            // Must have only one required argument
+            // if (r.parameters.slice(1).some((p) => p.required)) return false
+
+            return true;
+          },
+        );
+
+        for (const resource of tsvProcs) {
+          const baseFieldName = inflection.computedAttributeField({ resource });
+          const fieldName = inflection.pgTsvRank(baseFieldName);
+          addTsvField(
+            baseFieldName,
+            fieldName,
+            `Adding rank field for computed column ${resource.name} on ${context.Self.name}`,
+          );
+        }
+
+        return fields;
+      },
+
+      GraphQLEnumType_values(values, build, context) {
+        const {
+          sql,
+          inflection,
+          input: { pgRegistry },
+          behavior,
+          dataplanPg: { TYPES },
+        } = build;
+
+        const {
+          scope: { isPgRowSortEnum, pgCodec: rawPgCodec },
+        } = context;
+
+        if (!isPgRowSortEnum || !rawPgCodec || !rawPgCodec.attributes) {
+          return values;
+        }
+
+        const codec = rawPgCodec as PgCodecWithAttributes;
+
+        const makePlan =
+          (fieldName: string, direction: "ASC" | "DESC") =>
+          (step: PgSelectStep) => {
+            const $select = getHackedStep(build, step);
+            const hack = $select?.__fts_ranks[fieldName];
+            if (hack) {
+              const [identifier, tsQueryString] = hack;
+              step.orderBy({
+                codec: TYPES.float,
+                fragment: sql.fragment`ts_rank(${identifier}, to_tsquery(${tsQueryString}))`,
+                direction,
+              });
+            }
+          };
+
+        const makeSpec = (fieldName: string, direction: "ASC" | "DESC") => ({
+          extensions: {
+            grafast: {
+              applyPlan: makePlan(fieldName, direction),
+            },
+          },
+        });
+
+        for (const [attributeName, attribute] of Object.entries(
+          codec.attributes,
+        )) {
+          if (!isTsvectorCodec(attribute.codec)) continue;
+          if (
+            !behavior.pgCodecAttributeMatches(
+              [codec, attributeName],
+              "attribute:filterBy",
+            )
+          ) {
+            continue;
+          }
+
+          const fieldName = inflection.attribute({ codec, attributeName });
+          const ascFieldName = inflection.pgTsvOrderByColumnRankEnum(
+            codec,
+            attributeName,
+            true,
+          );
+          const descFieldName = inflection.pgTsvOrderByColumnRankEnum(
+            codec,
+            attributeName,
+            false,
+          );
+
+          build.extend(
+            values,
+            {
+              [ascFieldName]: makeSpec(fieldName, "ASC"),
+              [descFieldName]: makeSpec(fieldName, "DESC"),
+            },
+            `Adding orders for rank of ${attributeName} on ${context.Self.name}`,
+          );
+        }
+
+        const tsvProcs = Object.values(pgRegistry.pgResources).filter(
+          (r): r is PgResource<any, any, any, PgResourceParameter[], any> => {
+            if (!isTsvectorCodec(r.codec)) return false;
+            if (!r.parameters) return false;
+            if (!r.parameters[0]) return false;
+            if (r.parameters[0].codec !== codec) return false;
+            if (!behavior.pgResourceMatches(r, "typeField")) return false;
+            if (!behavior.pgResourceMatches(r, "orderBy")) return false;
+            if (typeof r.from !== "function") return false;
+
+            // Must have only one required argument
+            // if (r.parameters.slice(1).some((p) => p.required)) return false
+
+            return true;
+          },
+        );
+
+        for (const resource of tsvProcs) {
+          const fieldName = inflection.computedAttributeField({
+            resource,
+          });
+          const ascFieldName = inflection.pgTsvOrderByComputedColumnRankEnum(
+            codec,
+            resource,
+            true,
+          );
+          const descFieldName = inflection.pgTsvOrderByComputedColumnRankEnum(
+            codec,
+            resource,
+            false,
+          );
+
+          build.extend(
+            values,
+            {
+              [ascFieldName]: makeSpec(fieldName, "ASC"),
+              [descFieldName]: makeSpec(fieldName, "DESC"),
+            },
+            `Adding TSV rank columns for sorting on table '${codec.name}'`,
+          );
+        }
+        return values;
+      },
+    },
+  },
+};
+
+export default PostGraphileFulltextFilterPlugin;
