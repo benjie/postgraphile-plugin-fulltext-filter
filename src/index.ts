@@ -7,7 +7,6 @@ import type {
   PgCodecWithAttributes,
   PgResource,
   PgResourceParameter,
-  PgSelectStep,
   PgSelectSingleStep,
   PgSelectQueryBuilder,
   PgConditionCapableParent,
