@@ -155,6 +155,15 @@ const withSchema =
   async () => {
     const client = await pool.connect();
     try {
+      // Abort all existing clients
+      await client.query(`\
+select pg_terminate_backend(pid)
+from pg_stat_activity
+where usename = user
+and datname = current_database()
+and pid <> pg_backend_pid();
+`);
+      // Now set up the query
       await client.query(`\
 drop schema if exists fulltext_test cascade;
 create schema fulltext_test;
