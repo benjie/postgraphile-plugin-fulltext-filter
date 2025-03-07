@@ -80,18 +80,15 @@ function getQueryBuilder(
     dataplanPg: { PgCondition },
   } = build;
   let conditionOrQB: PgConditionCapableParent | PgSelectQueryBuilder = parent;
-  while (conditionOrQB && conditionOrQB instanceof PgCondition) {
-    if (
-      // Don't support EXISTS or other exotic conditions
-      !["AND", "OR", "NOT", "PASS_THRU"].includes(
-        conditionOrQB.resolvedMode.mode,
-      )
-    ) {
-      return null;
-    }
+  const { alias } = conditionOrQB;
+  while (
+    conditionOrQB &&
+    conditionOrQB instanceof PgCondition &&
+    conditionOrQB.alias === alias
+  ) {
     conditionOrQB = (conditionOrQB as any).parent;
   }
-  if (isPgSelectQueryBuilder(conditionOrQB)) {
+  if (isPgSelectQueryBuilder(conditionOrQB) && conditionOrQB.alias === alias) {
     return conditionOrQB;
   } else {
     console.log(
