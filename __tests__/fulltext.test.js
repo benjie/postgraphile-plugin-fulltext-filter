@@ -317,7 +317,7 @@ test(
         schema,
         source: query,
         contextValue: { pgClient },
-        variableValues: { orderBy: ["FULL_TEXT_ASC"] },
+        variableValues: { orderBy: ["FULL_TEXT_RANK_ASC"] },
         resolvedPreset,
         requestContext: {},
       });
@@ -330,7 +330,7 @@ test(
         schema,
         source: query,
         contextValue: { pgClient },
-        variableValues: { orderBy: ["FULL_TEXT_DESC"] },
+        variableValues: { orderBy: ["FULL_TEXT_RANK_DESC"] },
         resolvedPreset,
         requestContext: {},
       });
