@@ -296,7 +296,6 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
               /* DO NOT DO THIS */
               const scoreFragment = sql`ts_rank(${sqlIdentifier}, to_tsquery(${sqlValue}))`;
               const selectIndex = qb.selectAndReturnIndex(scoreFragment);
-              console.log(`Storing FTS ranks for ${fieldName}`);
               qb.setMeta(`__fts_ranks_${fieldName!}`, {
                 selectIndex,
                 scoreFragment,
@@ -358,7 +357,6 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
                         `__fts_ranks_${baseFieldName}`,
                       ) as Step<Maybe<FtsRanksDetails>>;
                       return lambda([$details, $row], ([details, row]) => {
-                        console.log(`Meta for ${baseFieldName}: `, details);
                         return details == null ||
                           row == null ||
                           row[details.selectIndex] == null
@@ -450,12 +448,10 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         const makeApply =
           (fieldName: string, direction: "ASC" | "DESC") =>
           (queryBuilder: PgSelectQueryBuilder) => {
-            console.log("APPLY!");
             const qb = getQueryBuilder(build, queryBuilder);
             const details = qb?.getMetaRaw(
               `__fts_ranks_${fieldName}`,
             ) as Maybe<FtsRanksDetails>;
-            console.log(`Raw meta for ${fieldName}: ${details}`);
             if (details) {
               const { scoreFragment: fragment } = details;
               queryBuilder.orderBy({
@@ -506,13 +502,6 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
               [descFieldName]: makeSpec(fieldName, "DESC"),
             },
             `Adding orders for rank of ${attributeName} on ${context.Self.name}`,
-          );
-          console.dir(
-            Object.entries(values).map(([k, v]) => [
-              k,
-              v.extensions?.grafast?.apply?.toString(),
-            ]),
-            { depth: 4 },
           );
         }
 
