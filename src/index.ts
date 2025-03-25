@@ -360,6 +360,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
                       return lambda([$details, $row], ([details, row]) => {
                         console.log(`Meta for ${baseFieldName}: `, details);
                         return details == null ||
+                          row == null ||
                           row[details.selectIndex] == null
                           ? null
                           : TYPES.float.fromPg(
