@@ -447,16 +447,16 @@ test(
       );
       
       insert into fulltext_test.clients (id, comment, tsv) values
-        (1, 'Client A', tsvector('fruit apple')),
-        (2, 'Client Z', tsvector('fruit avocado'));
+        (1, 'Client A', to_tsvector('fruit apple')),
+        (2, 'Client Z', to_tsvector('fruit avocado'));
       
       insert into fulltext_test.orders (id, client_id, comment, tsv) values
-        (1, 1, 'X', tsvector('fruit apple')),
-        (2, 1, 'Y', tsvector('fruit pear apple')),
-        (3, 1, 'Z', tsvector('vegetable potato')),
-        (4, 2, 'X', tsvector('fruit apple')),
-        (5, 2, 'Y', tsvector('fruit tomato')),
-        (6, 2, 'Z', tsvector('vegetable'));
+        (1, 1, 'X', to_tsvector('fruit apple')),
+        (2, 1, 'Y', to_tsvector('fruit pear apple')),
+        (3, 1, 'Z', to_tsvector('vegetable potato')),
+        (4, 2, 'X', to_tsvector('fruit apple')),
+        (5, 2, 'Y', to_tsvector('fruit tomato')),
+        (6, 2, 'Z', to_tsvector('vegetable'));
     `,
     test: async ({ schema, resolvedPreset, pgClient }) => {
       const source = `
