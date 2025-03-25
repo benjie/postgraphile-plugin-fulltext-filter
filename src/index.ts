@@ -7,10 +7,11 @@ import type {
   PgCodecWithAttributes,
   PgResource,
   PgResourceParameter,
-  PgSelectStep,
   PgSelectSingleStep,
+  PgSelectQueryBuilder,
+  PgConditionCapableParent,
 } from "postgraphile/@dataplan/pg";
-import type { ExecutableStep } from "postgraphile/grafast";
+import type { Step, Maybe } from "postgraphile/grafast";
 import { sql } from "postgraphile/pg-sql2";
 import { listOfCodec } from "postgraphile/@dataplan/pg";
 
@@ -50,32 +51,19 @@ declare global {
   }
 }
 
-/**
- * DO NOT DO THIS!
- */
-type HackedPgSelectStep = PgSelectStep & {
-  __fts_ranks: Record<string, [identifier: SQL, value: SQL]>;
-};
+interface FtsRanksDetails {
+  selectIndex: number;
+  scoreFragment: SQL;
+}
 
-function copyHacks(
-  build: GraphileBuild.Build,
-  $from: HackedPgSelectStep,
-  $to: ExecutableStep,
-) {
-  const $otherSelect = getHackedStep(build, $to);
-  if ($otherSelect) {
-    for (const key in $from.__fts_ranks) {
-      if (!$otherSelect.__fts_ranks[key]) {
-        $otherSelect.__fts_ranks[key] = $from.__fts_ranks[key];
-      } else {
-        console.warn(
-          `Refused to overwrite __fts_ranks[${key}] since it was already set`,
-        );
-      }
-    }
-  } else {
-    console.log(`Couldn't get hacked step`);
-  }
+function isPgSelectQueryBuilder(
+  o: Record<string, any>,
+): o is PgSelectQueryBuilder {
+  return (
+    !!o.alias &&
+    typeof o.where === "function" &&
+    typeof o.havingBuilder === "function"
+  );
 }
 
 /*
@@ -83,38 +71,32 @@ function copyHacks(
  * normalized caching - we're only doing it to maintain backwards
  * compatibility.
  */
-function getHackedStep(build: GraphileBuild.Build, $someStep: ExecutableStep) {
+function getQueryBuilder(
+  build: GraphileBuild.Build,
+  parent: PgConditionCapableParent,
+) {
   const {
-    dataplanPg: { PgConditionStep, PgSelectStep, PgSelectSingleStep },
+    dataplanPg: { PgCondition },
   } = build;
-  let $step = $someStep;
-  while ($step instanceof PgConditionStep) {
-    $step = ($step as any).$parent;
+  let conditionOrQB: PgConditionCapableParent | PgSelectQueryBuilder = parent;
+  const { alias } = conditionOrQB;
+  while (
+    conditionOrQB &&
+    conditionOrQB instanceof PgCondition &&
+    conditionOrQB.alias === alias
+  ) {
+    conditionOrQB = (conditionOrQB as any).parent;
   }
-  if ($step instanceof PgSelectSingleStep) {
-    $step = $step.getClassStep();
-  }
-  if ($step instanceof PgSelectStep) {
-    const $s = $step as HackedPgSelectStep;
-    if (!$s.__fts_ranks) {
-      $s.__fts_ranks = Object.create(null);
-      $s.setInliningForbidden();
-      const dedupeBefore = $s.deduplicatedWith;
-      $s.deduplicatedWith = function ($otherStep, ...rest) {
-        copyHacks(build, this, $otherStep);
-        return dedupeBefore?.call(this, $otherStep, ...rest);
-      };
-
-      const cloneBefore = $s.clone;
-      $s.clone = function (...args) {
-        const $otherSelect = cloneBefore.apply(this, args);
-        copyHacks(build, this, $otherSelect);
-        return $otherSelect;
-      };
-    }
-    return $s;
+  if (isPgSelectQueryBuilder(conditionOrQB) && conditionOrQB.alias === alias) {
+    return conditionOrQB;
+  } else if (conditionOrQB instanceof PgCondition) {
+    // alias didn't match
+    return null;
   } else {
-    console.log(`${$step} was not a PgSelectStep... unable to cache rank`);
+    console.warn(
+      `%o was not a PgSelectQueryBuilder... unable to cache rank`,
+      conditionOrQB,
+    );
     return null;
   }
 }
@@ -255,8 +237,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           addConnectionFilterOperator,
           sql,
           graphql: { GraphQLString, Kind },
-          grafast: { lambda },
-          dataplanPg: { TYPES },
+          dataplanPg: { TYPES, sqlValueWithCodec },
           inflection,
         } = build;
 
@@ -305,21 +286,23 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         addConnectionFilterOperator(scalarName, "matches", {
           description: "Performs a full text search on the field.",
           resolveType: () => GraphQLString,
-          resolve(
-            sqlIdentifier,
-            _sqlValue,
-            $input,
-            $placeholderable,
-            { fieldName },
-          ) {
-            const sqlValue = $placeholderable.placeholder($input, TYPES.text);
-            const $s = getHackedStep(build, $placeholderable as any);
-            if ($s) {
+          resolve(sqlIdentifier, _sqlValue, input, pgCondition, { fieldName }) {
+            const sqlValue = sqlValueWithCodec(input, TYPES.text);
+            const qb = getQueryBuilder(build, pgCondition);
+
+            const whereFragment = sql`${sqlIdentifier} @@ to_tsquery(${sqlValue})`;
+
+            if (qb) {
               /* DO NOT DO THIS */
-              $s.__fts_ranks![fieldName!] = [sqlIdentifier, sqlValue];
+              const scoreFragment = sql`ts_rank(${sqlIdentifier}, to_tsquery(${sqlValue}))`;
+              const selectIndex = qb.selectAndReturnIndex(scoreFragment);
+              qb.setMeta(`__fts_ranks_${fieldName!}`, {
+                selectIndex,
+                scoreFragment,
+              } as FtsRanksDetails);
             }
 
-            return sql.query`${sqlIdentifier} @@ to_tsquery(${sqlValue})`;
+            return whereFragment;
           },
         });
 
@@ -329,10 +312,9 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
       GraphQLObjectType_fields(fields, build, context) {
         const {
           dataplanPg: { TYPES },
-          grafast: { constant },
+          grafast: { lambda },
           graphql: { GraphQLFloat },
           input: { pgRegistry },
-          sql,
           inflection,
           behavior,
         } = build;
@@ -370,16 +352,19 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
                     type: GraphQLFloat,
                     plan($step) {
                       const $row = $step as PgSelectSingleStep;
-                      const $select = getHackedStep(build, $row);
-                      const hack = $select?.__fts_ranks[baseFieldName];
-                      if (!hack) {
-                        return constant(null);
-                      }
-                      const [identifier, tsQueryString] = hack;
-                      return $row.select(
-                        sql.fragment`ts_rank(${identifier}, to_tsquery(${tsQueryString}))`,
-                        TYPES.float,
-                      );
+                      const $select = $row.getClassStep();
+                      const $details = $select.getMeta(
+                        `__fts_ranks_${baseFieldName}`,
+                      ) as Step<Maybe<FtsRanksDetails>>;
+                      return lambda([$details, $row], ([details, row]) => {
+                        return details == null ||
+                          row == null ||
+                          row[details.selectIndex] == null
+                          ? null
+                          : TYPES.float.fromPg(
+                              row[details.selectIndex] as string,
+                            );
+                      });
                     },
                   };
                 },
@@ -460,16 +445,18 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
 
         const codec = rawPgCodec as PgCodecWithAttributes;
 
-        const makePlan =
+        const makeApply =
           (fieldName: string, direction: "ASC" | "DESC") =>
-          (step: PgSelectStep) => {
-            const $select = getHackedStep(build, step);
-            const hack = $select?.__fts_ranks[fieldName];
-            if (hack) {
-              const [identifier, tsQueryString] = hack;
-              step.orderBy({
+          (queryBuilder: PgSelectQueryBuilder) => {
+            const qb = getQueryBuilder(build, queryBuilder);
+            const details = qb?.getMetaRaw(
+              `__fts_ranks_${fieldName}`,
+            ) as Maybe<FtsRanksDetails>;
+            if (details) {
+              const { scoreFragment: fragment } = details;
+              queryBuilder.orderBy({
                 codec: TYPES.float,
-                fragment: sql.fragment`ts_rank(${identifier}, to_tsquery(${tsQueryString}))`,
+                fragment,
                 direction,
               });
             }
@@ -478,7 +465,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         const makeSpec = (fieldName: string, direction: "ASC" | "DESC") => ({
           extensions: {
             grafast: {
-              applyPlan: makePlan(fieldName, direction),
+              apply: makeApply(fieldName, direction),
             },
           },
         });

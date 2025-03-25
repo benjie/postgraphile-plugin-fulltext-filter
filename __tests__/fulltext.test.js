@@ -129,7 +129,10 @@ test(
 
       const bananaData = bananaResult.data.allJobs.nodes;
       expect(bananaData).toHaveLength(1);
-      bananaData.map((n) => expect(n.fullTextRank).not.toBeNull());
+      const [record] = bananaData;
+      expect(record.id).toEqual(2);
+      expect(record.name).toEqual("test 2");
+      expect(record.fullTextRank).not.toBeNull();
     },
   }),
 );
@@ -273,8 +276,10 @@ test(
 
       const potatoData = potatoResult.data.allJobs.nodes;
       expect(potatoData).toHaveLength(1);
-      potatoData.map((n) => expect(n.fullTextRank).toBeNull());
-      potatoData.map((n) => expect(n.otherFullTextRank).not.toBeNull());
+      const [record] = potatoData;
+      expect(record.fullTextRank).toBeNull();
+      expect(record.otherFullTextRank).not.toBeNull();
+      expect(record.name).toEqual("test");
     },
   }),
 );
@@ -317,7 +322,7 @@ test(
         schema,
         source: query,
         contextValue: { pgClient },
-        variableValues: { orderBy: ["FULL_TEXT_ASC"] },
+        variableValues: { orderBy: ["FULL_TEXT_RANK_ASC"] },
         resolvedPreset,
         requestContext: {},
       });
@@ -330,7 +335,7 @@ test(
         schema,
         source: query,
         contextValue: { pgClient },
-        variableValues: { orderBy: ["FULL_TEXT_DESC"] },
+        variableValues: { orderBy: ["FULL_TEXT_RANK_DESC"] },
         resolvedPreset,
         requestContext: {},
       });
@@ -340,6 +345,9 @@ test(
       expect(descResult).not.toHaveProperty("errors");
 
       expect(ascResult).not.toEqual(descResult);
+      const ascNodes = ascResult.data.allJobs.nodes;
+      const descNodes = descResult.data.allJobs.nodes;
+      expect(ascNodes[0].id).toEqual(descNodes[descNodes.length - 1].id);
     },
   }),
 );
@@ -367,16 +375,16 @@ test(
       );
       
       insert into fulltext_test.clients (id, comment, tsv) values
-        (1, 'Client A', tsvector('fruit apple')),
-        (2, 'Client Z', tsvector('fruit avocado'));
+        (1, 'Client A', to_tsvector('fruit apple')),
+        (2, 'Client Z', to_tsvector('fruit avocado'));
       
       insert into fulltext_test.orders (id, client_id, comment, tsv) values
-        (1, 1, 'X', tsvector('fruit apple')),
-        (2, 1, 'Y', tsvector('fruit pear apple')),
-        (3, 1, 'Z', tsvector('vegetable potato')),
-        (4, 2, 'X', tsvector('fruit apple')),
-        (5, 2, 'Y', tsvector('fruit tomato')),
-        (6, 2, 'Z', tsvector('vegetable'));
+        (1, 1, 'X', to_tsvector('fruit apple')),
+        (2, 1, 'Y', to_tsvector('fruit pear apple')),
+        (3, 1, 'Z', to_tsvector('vegetable potato')),
+        (4, 2, 'X', to_tsvector('fruit apple')),
+        (5, 2, 'Y', to_tsvector('fruit tomato')),
+        (6, 2, 'Z', to_tsvector('vegetable'));
     `,
     test: async ({ schema, resolvedPreset, pgClient }) => {
       const query = `
@@ -411,7 +419,7 @@ test(
         throw new Error(`Didn't expect an async iterable`);
       }
       expect(result).not.toHaveProperty("errors");
-      expect(result.data.allOrders.nodes).toHaveLength(2);
+      expect(result.data.allOrders.nodes).toHaveLength(4);
     },
   }),
 );
@@ -439,16 +447,16 @@ test(
       );
       
       insert into fulltext_test.clients (id, comment, tsv) values
-        (1, 'Client A', tsvector('fruit apple')),
-        (2, 'Client Z', tsvector('fruit avocado'));
+        (1, 'Client A', to_tsvector('fruit apple')),
+        (2, 'Client Z', to_tsvector('fruit avocado'));
       
       insert into fulltext_test.orders (id, client_id, comment, tsv) values
-        (1, 1, 'X', tsvector('fruit apple')),
-        (2, 1, 'Y', tsvector('fruit pear apple')),
-        (3, 1, 'Z', tsvector('vegetable potato')),
-        (4, 2, 'X', tsvector('fruit apple')),
-        (5, 2, 'Y', tsvector('fruit tomato')),
-        (6, 2, 'Z', tsvector('vegetable'));
+        (1, 1, 'X', to_tsvector('fruit apple')),
+        (2, 1, 'Y', to_tsvector('fruit pear apple')),
+        (3, 1, 'Z', to_tsvector('vegetable potato')),
+        (4, 2, 'X', to_tsvector('fruit apple')),
+        (5, 2, 'Y', to_tsvector('fruit tomato')),
+        (6, 2, 'Z', to_tsvector('vegetable'));
     `,
     test: async ({ schema, resolvedPreset, pgClient }) => {
       const source = `
