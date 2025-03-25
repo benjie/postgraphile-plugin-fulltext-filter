@@ -129,7 +129,10 @@ test(
 
       const bananaData = bananaResult.data.allJobs.nodes;
       expect(bananaData).toHaveLength(1);
-      bananaData.map((n) => expect(n.fullTextRank).not.toBeNull());
+      const [record] = bananaData;
+      expect(record.id).toEqual(2);
+      expect(record.name).toEqual("test 2");
+      expect(record.fullTextRank).not.toBeNull();
     },
   }),
 );
@@ -273,8 +276,10 @@ test(
 
       const potatoData = potatoResult.data.allJobs.nodes;
       expect(potatoData).toHaveLength(1);
-      potatoData.map((n) => expect(n.fullTextRank).toBeNull());
-      potatoData.map((n) => expect(n.otherFullTextRank).not.toBeNull());
+      const [record] = potatoData;
+      expect(record.fullTextRank).toBeNull();
+      expect(record.otherFullTextRank).not.toBeNull();
+      expect(record.name).toEqual("test");
     },
   }),
 );
@@ -340,6 +345,9 @@ test(
       expect(descResult).not.toHaveProperty("errors");
 
       expect(ascResult).not.toEqual(descResult);
+      const ascNodes = ascResult.data.allJobs.nodes;
+      const descNodes = descResult.data.allJobs.nodes;
+      expect(ascNodes[0].id).toEqual(descNodes[descNodes.length - 1].id);
     },
   }),
 );
