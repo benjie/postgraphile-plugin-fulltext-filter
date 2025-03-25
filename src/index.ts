@@ -89,9 +89,13 @@ function getQueryBuilder(
   }
   if (isPgSelectQueryBuilder(conditionOrQB) && conditionOrQB.alias === alias) {
     return conditionOrQB;
+  } else if (conditionOrQB instanceof PgCondition) {
+    // alias didn't match
+    return null;
   } else {
-    console.log(
-      `${conditionOrQB} was not a PgSelectStep... unable to cache rank`,
+    console.warn(
+      `%o was not a PgSelectQueryBuilder... unable to cache rank`,
+      conditionOrQB,
     );
     return null;
   }
