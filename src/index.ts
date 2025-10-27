@@ -74,7 +74,7 @@ function isPgSelectQueryBuilder(
 function getQueryBuilder(
   build: GraphileBuild.Build,
   parent: PgConditionCapableParent,
-) {
+): PgSelectQueryBuilder | null {
   const {
     dataplanPg: { PgCondition },
   } = build;
@@ -292,7 +292,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
 
             const whereFragment = sql`${sqlIdentifier} @@ to_tsquery(${sqlValue})`;
 
-            if (qb) {
+            if (qb && qb.mode === "normal") {
               /* DO NOT DO THIS */
               const scoreFragment = sql`ts_rank(${sqlIdentifier}, to_tsquery(${sqlValue}))`;
               const selectIndex = qb.selectAndReturnIndex(scoreFragment);
