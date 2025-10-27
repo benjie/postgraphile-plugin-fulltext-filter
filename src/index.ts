@@ -292,7 +292,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
 
             const whereFragment = sql`${sqlIdentifier} @@ to_tsquery(${sqlValue})`;
 
-            if (qb?.mode === "normal") {
+            if (qb && qb.mode === "normal") {
               /* DO NOT DO THIS */
               const scoreFragment = sql`ts_rank(${sqlIdentifier}, to_tsquery(${sqlValue}))`;
               const selectIndex = qb.selectAndReturnIndex(scoreFragment);
