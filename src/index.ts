@@ -541,4 +541,36 @@ export const PgFulltextFilterPlugin: GraphileConfig.Plugin = {
   },
 };
 
-export default PostGraphileFulltextFilterPlugin;
+export const PgFulltextExposePlugin: GraphileConfig.Plugin = {
+  name: "PgFulltextExposePlugin",
+  schema: {
+    entityBehavior: {
+      pgCodecAttribute: {
+        override: {
+          before: ["PgBasicsPlugin"],
+          callback(behavior, [codec, attributeName], build) {
+            const attr = codec.attributes[attributeName];
+            if (attr.codec === build.dataplanPg.TYPES.tsvector) {
+              // Core added:
+              // -attribute:base -attribute:select -attribute:insert
+              // -attribute:update -condition:attribute:filterBy
+              // -attribute:orderBy
+              return [
+                behavior,
+                "attribute:base",
+                "attribute:select",
+                "attribute:insert",
+                "attribute:update",
+                "condition:attribute:filterBy",
+                "attribute:orderBy",
+              ];
+            }
+            return behavior;
+          },
+        },
+      },
+    },
+  },
+};
+
+export default PgFulltextFilterPlugin;
