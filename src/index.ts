@@ -407,7 +407,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
             if (typeof r.from !== "function") return false;
 
             // Must have only one required argument
-            // if (r.parameters.slice(1).some((p) => p.required)) return false
+            // if (r.parameters.slice(1).some((p) => !p.optional)) return false
 
             return true;
           },
@@ -516,7 +516,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
             if (typeof r.from !== "function") return false;
 
             // Must have only one required argument
-            // if (r.parameters.slice(1).some((p) => p.required)) return false
+            // if (r.parameters.slice(1).some((p) => !p.optional)) return false
 
             return true;
           },
