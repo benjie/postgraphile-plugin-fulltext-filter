@@ -12,8 +12,6 @@ import type {
   PgConditionCapableParent,
 } from "postgraphile/@dataplan/pg";
 import type { Step, Maybe } from "postgraphile/grafast";
-import { sql } from "postgraphile/pg-sql2";
-import { listOfCodec } from "postgraphile/@dataplan/pg";
 
 declare global {
   namespace GraphileBuild {
@@ -103,18 +101,6 @@ function getQueryBuilder(
 
 const tsquery = new Tsquery();
 
-function isTsvectorCodec(codec: PgCodec) {
-  return (
-    codec.extensions?.pg?.schemaName === "pg_catalog" &&
-    codec.extensions?.pg?.name === "tsvector"
-  );
-}
-
-interface State {
-  tsvectorCodec: PgCodec<string, any, any, any, undefined, any, any> | null;
-  tsvectorArrayCodec: PgCodec | null;
-}
-
 /**
  * This is a TypeScript constrained identity function to save having to specify
  * all the generics manually.
@@ -160,76 +146,6 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
     },
   },
 
-  gather: gatherConfig({
-    namespace: "pgFulltextFilter",
-    initialState: (): State => ({
-      tsvectorCodec: null,
-      tsvectorArrayCodec: null,
-    }),
-    helpers: {
-      getTsvectorCodec(info) {
-        const { EXPORTABLE } = info;
-        if (!info.state.tsvectorCodec) {
-          info.state.tsvectorCodec = EXPORTABLE(
-            (sql) => ({
-              name: "tsvector",
-              sqlType: sql`tsvector`,
-              toPg(str) {
-                return str;
-              },
-              fromPg(str) {
-                return str;
-              },
-              executor: null,
-              attributes: undefined,
-              extensions: {
-                pg: {
-                  name: "tsvector",
-                  schemaName: "pg_catalog",
-                  // TODO: remove this
-                  serviceName: "",
-                },
-              },
-            }),
-            [sql],
-          );
-        }
-        return info.state.tsvectorCodec;
-      },
-      getTsvectorArrayCodec(info) {
-        const { EXPORTABLE } = info;
-        if (!info.state.tsvectorArrayCodec) {
-          const tsvectorCodec =
-            info.helpers.pgFulltextFilter.getTsvectorCodec();
-          info.state.tsvectorArrayCodec = EXPORTABLE(
-            (listOfCodec, tsvectorCodec) => listOfCodec(tsvectorCodec),
-            [listOfCodec, tsvectorCodec],
-          );
-        }
-        return info.state.tsvectorArrayCodec;
-      },
-    },
-    hooks: {
-      async pgCodecs_findPgCodec(info, event) {
-        // If another plugin has already supplied a codec; skip
-        if (event.pgCodec) return;
-
-        const { pgType } = event;
-        if (
-          pgType.typname === "tsvector" &&
-          pgType.getNamespace()?.nspname === "pg_catalog"
-        ) {
-          event.pgCodec = info.helpers.pgFulltextFilter.getTsvectorCodec();
-        } else if (
-          pgType.typname === "_tsvector" &&
-          pgType.getNamespace()?.nspname === "pg_catalog"
-        ) {
-          event.pgCodec = info.helpers.pgFulltextFilter.getTsvectorArrayCodec();
-        }
-      },
-    },
-  }),
-
   schema: {
     hooks: {
       init(_, build) {
@@ -273,15 +189,12 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           "Adding full text scalar type",
         );
 
-        const tsvectorCodecs = [...build.allPgCodecs].filter(isTsvectorCodec);
-
-        for (const tsvectorCodec of tsvectorCodecs) {
-          build.setGraphQLTypeForPgCodec(
-            tsvectorCodec,
-            ["input", "output"],
-            scalarName,
-          );
-        }
+        const tsvectorCodec = TYPES.tsvector;
+        build.setGraphQLTypeForPgCodec(
+          tsvectorCodec,
+          ["input", "output"],
+          scalarName,
+        );
 
         addConnectionFilterOperator(scalarName, "matches", {
           description: "Performs a full text search on the field.",
@@ -377,7 +290,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         for (const [attributeName, attribute] of Object.entries(
           codec.attributes,
         )) {
-          if (!isTsvectorCodec(attribute.codec)) continue;
+          if (attribute.codec !== TYPES.tsvector) continue;
           if (
             !behavior.pgCodecAttributeMatches(
               [codec, attributeName],
@@ -397,8 +310,10 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         }
 
         const tsvProcs = Object.values(pgRegistry.pgResources).filter(
-          (r): r is PgResource<any, any, any, PgResourceParameter[], any> => {
-            if (!isTsvectorCodec(r.codec)) return false;
+          (
+            r: PgResource,
+          ): r is PgResource<any, any, any, PgResourceParameter[], any> => {
+            if (r.codec !== TYPES.tsvector) return false;
             if (!r.parameters) return false;
             if (!r.parameters[0]) return false;
             if (r.parameters[0].codec !== codec) return false;
@@ -473,7 +388,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         for (const [attributeName, attribute] of Object.entries(
           codec.attributes,
         )) {
-          if (!isTsvectorCodec(attribute.codec)) continue;
+          if (attribute.codec !== TYPES.tsvector) continue;
           if (
             !behavior.pgCodecAttributeMatches(
               [codec, attributeName],
@@ -506,8 +421,10 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         }
 
         const tsvProcs = Object.values(pgRegistry.pgResources).filter(
-          (r): r is PgResource<any, any, any, PgResourceParameter[], any> => {
-            if (!isTsvectorCodec(r.codec)) return false;
+          (
+            r: PgResource,
+          ): r is PgResource<any, any, any, PgResourceParameter[], any> => {
+            if (r.codec !== TYPES.tsvector) return false;
             if (!r.parameters) return false;
             if (!r.parameters[0]) return false;
             if (r.parameters[0].codec !== codec) return false;
