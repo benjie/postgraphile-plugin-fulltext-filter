@@ -11,7 +11,10 @@ const {
 const {
   PostGraphileConnectionFilterPreset,
 } = require("postgraphile-plugin-connection-filter");
-const { default: ThisPlugin } = require("../dist/index.js");
+const {
+  PgFulltextFilterPlugin,
+  PgFulltextExposePlugin,
+} = require("../dist/index.js");
 
 // This test suite can be flaky. Increase it’s timeout.
 jest.setTimeout(1000 * 20);
@@ -179,30 +182,38 @@ create schema fulltext_test;
       client.release();
     }
     return withPgClient(async (client) => {
-      /** @type {GraphileConfig.Preset} */
-      const preset = {
-        extends: [
-          makeV4Preset({
-            // showErrorStack: true,
-            ...options,
-          }),
-          PostGraphileConnectionFilterPreset,
-        ],
-        plugins: [ThisPlugin, ShoveClientIntoContextPlugin],
-        pgServices: [
-          makePgService({
-            pool,
-            schemas: ["fulltext_test"],
-          }),
-        ],
-      };
-
-      const { schema, resolvedPreset } = await makeSchema(preset);
-      return test({
-        schema,
-        resolvedPreset,
-        pgClient: client,
+      const pgService = makePgService({
+        pool,
+        schemas: ["fulltext_test"],
       });
+
+      try {
+        /** @type {GraphileConfig.Preset} */
+        const preset = {
+          extends: [
+            makeV4Preset({
+              // showErrorStack: true,
+              ...options,
+            }),
+            PostGraphileConnectionFilterPreset,
+          ],
+          plugins: [
+            PgFulltextFilterPlugin,
+            PgFulltextExposePlugin,
+            ShoveClientIntoContextPlugin,
+          ],
+          pgServices: [pgService],
+        };
+
+        const { schema, resolvedPreset } = await makeSchema(preset);
+        return test({
+          schema,
+          resolvedPreset,
+          pgClient: client,
+        });
+      } finally {
+        await pgService.release?.();
+      }
     });
   };
 

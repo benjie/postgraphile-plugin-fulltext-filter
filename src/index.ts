@@ -12,8 +12,6 @@ import type {
   PgConditionCapableParent,
 } from "postgraphile/@dataplan/pg";
 import type { Step, Maybe } from "postgraphile/grafast";
-import { sql } from "postgraphile/pg-sql2";
-import { listOfCodec } from "postgraphile/@dataplan/pg";
 
 declare global {
   namespace GraphileBuild {
@@ -35,6 +33,12 @@ declare global {
     }
     interface ScopeObjectFieldsField {
       isPgTSVRankField?: boolean;
+    }
+    interface BehaviorStrings {
+      "attributeFtsRank:select": true;
+      "procFtsRank:select": true;
+      "attributeFtsRank:orderBy": true;
+      "procFtsRank:orderBy": true;
     }
   }
   namespace GraphileConfig {
@@ -103,18 +107,6 @@ function getQueryBuilder(
 
 const tsquery = new Tsquery();
 
-function isTsvectorCodec(codec: PgCodec) {
-  return (
-    codec.extensions?.pg?.schemaName === "pg_catalog" &&
-    codec.extensions?.pg?.name === "tsvector"
-  );
-}
-
-interface State {
-  tsvectorCodec: PgCodec<string, any, any, any, undefined, any, any> | null;
-  tsvectorArrayCodec: PgCodec | null;
-}
-
 /**
  * This is a TypeScript constrained identity function to save having to specify
  * all the generics manually.
@@ -129,8 +121,10 @@ export function gatherConfig<
   return config;
 }
 
-const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
-  name: "PostGraphileFulltextFilterPlugin",
+export const PgFulltextFilterPlugin: GraphileConfig.Plugin = {
+  name: "PgFulltextFilterPlugin",
+  // Need to register our scalar before the main schema does
+  before: ["PgCodecsPlugin"],
   inflection: {
     add: {
       fullTextScalarTypeName() {
@@ -160,77 +154,69 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
     },
   },
 
-  gather: gatherConfig({
-    namespace: "pgFulltextFilter",
-    initialState: (): State => ({
-      tsvectorCodec: null,
-      tsvectorArrayCodec: null,
-    }),
-    helpers: {
-      getTsvectorCodec(info) {
-        const { EXPORTABLE } = info;
-        if (!info.state.tsvectorCodec) {
-          info.state.tsvectorCodec = EXPORTABLE(
-            (sql) => ({
-              name: "tsvector",
-              sqlType: sql`tsvector`,
-              toPg(str) {
-                return str;
-              },
-              fromPg(str) {
-                return str;
-              },
-              executor: null,
-              attributes: undefined,
-              extensions: {
-                pg: {
-                  name: "tsvector",
-                  schemaName: "pg_catalog",
-                  // TODO: remove this
-                  serviceName: "",
-                },
-              },
-            }),
-            [sql],
-          );
-        }
-        return info.state.tsvectorCodec;
-      },
-      getTsvectorArrayCodec(info) {
-        const { EXPORTABLE } = info;
-        if (!info.state.tsvectorArrayCodec) {
-          const tsvectorCodec =
-            info.helpers.pgFulltextFilter.getTsvectorCodec();
-          info.state.tsvectorArrayCodec = EXPORTABLE(
-            (listOfCodec, tsvectorCodec) => listOfCodec(tsvectorCodec),
-            [listOfCodec, tsvectorCodec],
-          );
-        }
-        return info.state.tsvectorArrayCodec;
-      },
-    },
-    hooks: {
-      async pgCodecs_findPgCodec(info, event) {
-        // If another plugin has already supplied a codec; skip
-        if (event.pgCodec) return;
-
-        const { pgType } = event;
-        if (
-          pgType.typname === "tsvector" &&
-          pgType.getNamespace()?.nspname === "pg_catalog"
-        ) {
-          event.pgCodec = info.helpers.pgFulltextFilter.getTsvectorCodec();
-        } else if (
-          pgType.typname === "_tsvector" &&
-          pgType.getNamespace()?.nspname === "pg_catalog"
-        ) {
-          event.pgCodec = info.helpers.pgFulltextFilter.getTsvectorArrayCodec();
-        }
-      },
-    },
-  }),
-
   schema: {
+    behaviorRegistry: {
+      add: {
+        "attributeFtsRank:select": {
+          description:
+            "[BREAKS NORMALIZED CACHING!] Should the 'full text search' rank be exposed for this attribute",
+          entities: ["pgCodecAttribute"],
+        },
+        "procFtsRank:select": {
+          description:
+            "[BREAKS NORMALIZED CACHING!] Should the 'full text search' derivative of this 'computed column' function be added?",
+          entities: ["pgResource"],
+        },
+        "attributeFtsRank:orderBy": {
+          description:
+            "Should you be able to order by the FTS rank for this attribute?",
+          entities: ["pgCodecAttribute"],
+        },
+        "procFtsRank:orderBy": {
+          description:
+            "Should you be able to order by the FTS rank for this 'computed column' function?",
+          entities: ["pgResource"],
+        },
+      },
+    },
+    entityBehavior: {
+      pgCodecAttribute: {
+        inferred: {
+          provides: ["default"],
+          before: ["inferred", "override", "PgAttributesPlugin"],
+          callback(behavior, [codec, attributeName], build) {
+            const attr = codec.attributes[attributeName];
+            if (attr.codec === build.dataplanPg.TYPES.tsvector) {
+              // Core added:
+              // -attribute:base -attribute:select -attribute:insert
+              // -attribute:update -condition:attribute:filterBy
+              // -attribute:orderBy
+              return [
+                "attributeFtsRank:orderBy",
+                "attributeFtsRank:select",
+                behavior,
+              ];
+            }
+            return behavior;
+          },
+        },
+      },
+      pgResource: {
+        inferred: {
+          provides: ["default"],
+          before: ["inferred", "override", "PgProceduresPlugin"],
+          callback(behavior, resource, build) {
+            if (!resource.parameters) {
+              return behavior;
+            }
+            if (resource.codec !== build.dataplanPg.TYPES.tsvector) {
+              return behavior;
+            }
+            return ["procFtsRank:orderBy", "procFtsRank:select", behavior];
+          },
+        },
+      },
+    },
     hooks: {
       init(_, build) {
         const {
@@ -243,7 +229,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
 
         if (!(addConnectionFilterOperator instanceof Function)) {
           throw new Error(
-            "PostGraphileFulltextFilterPlugin requires PostGraphileConnectionFilterPlugin to be loaded before it.",
+            "PgFulltextFilterPlugin requires PostGraphileConnectionFilterPlugin to be loaded before it.",
           );
         }
 
@@ -273,15 +259,11 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           "Adding full text scalar type",
         );
 
-        const tsvectorCodecs = [...build.allPgCodecs].filter(isTsvectorCodec);
-
-        for (const tsvectorCodec of tsvectorCodecs) {
-          build.setGraphQLTypeForPgCodec(
-            tsvectorCodec,
-            ["input", "output"],
-            scalarName,
-          );
-        }
+        build.setGraphQLTypeForPgCodec(
+          TYPES.tsvector,
+          ["input", "output"],
+          scalarName,
+        );
 
         addConnectionFilterOperator(scalarName, "matches", {
           description: "Performs a full text search on the field.",
@@ -377,11 +359,11 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         for (const [attributeName, attribute] of Object.entries(
           codec.attributes,
         )) {
-          if (!isTsvectorCodec(attribute.codec)) continue;
+          if (attribute.codec !== TYPES.tsvector) continue;
           if (
             !behavior.pgCodecAttributeMatches(
               [codec, attributeName],
-              "attribute:filterBy",
+              "attributeFtsRank:select",
             )
           ) {
             continue;
@@ -397,17 +379,20 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         }
 
         const tsvProcs = Object.values(pgRegistry.pgResources).filter(
-          (r): r is PgResource<any, any, any, PgResourceParameter[], any> => {
-            if (!isTsvectorCodec(r.codec)) return false;
+          (
+            r: PgResource,
+          ): r is PgResource<any, any, any, PgResourceParameter[], any> => {
+            if (r.codec !== TYPES.tsvector) return false;
             if (!r.parameters) return false;
             if (!r.parameters[0]) return false;
             if (r.parameters[0].codec !== codec) return false;
             if (!behavior.pgResourceMatches(r, "typeField")) return false;
-            if (!behavior.pgResourceMatches(r, "proc:filterBy")) return false;
+            if (!behavior.pgResourceMatches(r, "procFtsRank:select"))
+              return false;
             if (typeof r.from !== "function") return false;
 
             // Must have only one required argument
-            // if (r.parameters.slice(1).some((p) => p.required)) return false
+            // if (r.parameters.slice(1).some((p) => !p.optional)) return false
 
             return true;
           },
@@ -473,11 +458,11 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         for (const [attributeName, attribute] of Object.entries(
           codec.attributes,
         )) {
-          if (!isTsvectorCodec(attribute.codec)) continue;
+          if (attribute.codec !== TYPES.tsvector) continue;
           if (
             !behavior.pgCodecAttributeMatches(
               [codec, attributeName],
-              "attribute:filterBy",
+              "attributeFtsRank:orderBy",
             )
           ) {
             continue;
@@ -506,17 +491,20 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         }
 
         const tsvProcs = Object.values(pgRegistry.pgResources).filter(
-          (r): r is PgResource<any, any, any, PgResourceParameter[], any> => {
-            if (!isTsvectorCodec(r.codec)) return false;
+          (
+            r: PgResource,
+          ): r is PgResource<any, any, any, PgResourceParameter[], any> => {
+            if (r.codec !== TYPES.tsvector) return false;
             if (!r.parameters) return false;
             if (!r.parameters[0]) return false;
             if (r.parameters[0].codec !== codec) return false;
             if (!behavior.pgResourceMatches(r, "typeField")) return false;
-            if (!behavior.pgResourceMatches(r, "orderBy")) return false;
+            if (!behavior.pgResourceMatches(r, "procFtsRank:orderBy"))
+              return false;
             if (typeof r.from !== "function") return false;
 
             // Must have only one required argument
-            // if (r.parameters.slice(1).some((p) => p.required)) return false
+            // if (r.parameters.slice(1).some((p) => !p.optional)) return false
 
             return true;
           },
@@ -552,4 +540,33 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
   },
 };
 
-export default PostGraphileFulltextFilterPlugin;
+export const PgFulltextExposePlugin: GraphileConfig.Plugin = {
+  name: "PgFulltextExposePlugin",
+  schema: {
+    entityBehavior: {
+      pgCodecAttribute: {
+        override: {
+          before: ["PgBasicsPlugin"],
+          callback(behavior, [codec, attributeName], build) {
+            const attr = codec.attributes[attributeName];
+            if (attr.codec !== build.dataplanPg.TYPES.tsvector) {
+              return behavior;
+            }
+            // Restore the behaviors core disabled
+            return [
+              behavior,
+              "attribute:base",
+              "attribute:select",
+              "attribute:insert",
+              "attribute:update",
+              "condition:attribute:filterBy",
+              "attribute:orderBy",
+            ];
+          },
+        },
+      },
+    },
+  },
+};
+
+export default PgFulltextFilterPlugin;
