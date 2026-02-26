@@ -159,12 +159,12 @@ export const PgFulltextFilterPlugin: GraphileConfig.Plugin = {
       add: {
         "attributeFtsRank:select": {
           description:
-            "[NOT VALID GRAPHQL!] Should the 'full text search' rank be exposed for this attribute",
+            "[BREAKS NORMALIZED CACHING!] Should the 'full text search' rank be exposed for this attribute",
           entities: ["pgCodecAttribute"],
         },
         "procFtsRank:select": {
           description:
-            "[NOT VALID GRAPHQL!] Should the 'full text search' derivative of this 'computed column' function be added?",
+            "[BREAKS NORMALIZED CACHING!] Should the 'full text search' derivative of this 'computed column' function be added?",
           entities: ["pgResource"],
         },
         "attributeFtsRank:orderBy": {
