@@ -259,9 +259,8 @@ export const PgFulltextFilterPlugin: GraphileConfig.Plugin = {
           "Adding full text scalar type",
         );
 
-        const tsvectorCodec = TYPES.tsvector;
         build.setGraphQLTypeForPgCodec(
-          tsvectorCodec,
+          TYPES.tsvector,
           ["input", "output"],
           scalarName,
         );
