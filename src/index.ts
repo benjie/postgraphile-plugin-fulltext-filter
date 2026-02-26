@@ -550,22 +550,19 @@ export const PgFulltextExposePlugin: GraphileConfig.Plugin = {
           before: ["PgBasicsPlugin"],
           callback(behavior, [codec, attributeName], build) {
             const attr = codec.attributes[attributeName];
-            if (attr.codec === build.dataplanPg.TYPES.tsvector) {
-              // Core added:
-              // -attribute:base -attribute:select -attribute:insert
-              // -attribute:update -condition:attribute:filterBy
-              // -attribute:orderBy
-              return [
-                behavior,
-                "attribute:base",
-                "attribute:select",
-                "attribute:insert",
-                "attribute:update",
-                "condition:attribute:filterBy",
-                "attribute:orderBy",
-              ];
+            if (attr.codec !== build.dataplanPg.TYPES.tsvector) {
+              return behavior;
             }
-            return behavior;
+            // Restore the behaviors core disabled
+            return [
+              behavior,
+              "attribute:base",
+              "attribute:select",
+              "attribute:insert",
+              "attribute:update",
+              "condition:attribute:filterBy",
+              "attribute:orderBy",
+            ];
           },
         },
       },
