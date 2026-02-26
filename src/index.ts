@@ -35,8 +35,10 @@ declare global {
       isPgTSVRankField?: boolean;
     }
     interface BehaviorStrings {
-      "fts:attribute:filterBy": true;
-      "fts:proc:filterBy": true;
+      "ftsRank:attribute:select": true;
+      "ftsRank:proc:select": true;
+      "ftsRank:attribute:orderBy": true;
+      "ftsRank:proc:orderBy": true;
     }
   }
   namespace GraphileConfig {
@@ -153,14 +155,24 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
   schema: {
     behaviorRegistry: {
       add: {
-        "fts:attribute:filterBy": {
+        "ftsRank:attribute:select": {
           description:
-            "Should the 'full text search' derivative of this attribute be added?",
+            "[NOT VALID GRAPHQL!] Should the 'full text search' rank be exposed for this attribute",
           entities: ["pgCodecAttribute"],
         },
-        "fts:proc:filterBy": {
+        "ftsRank:proc:select": {
           description:
-            "Should the 'full text search' derivative of this 'computed column' function be added?",
+            "[NOT VALID GRAPHQL!] Should the 'full text search' derivative of this 'computed column' function be added?",
+          entities: ["pgResource"],
+        },
+        "ftsRank:attribute:orderBy": {
+          description:
+            "Should you be able to order by the FTS rank for this attribute?",
+          entities: ["pgCodecAttribute"],
+        },
+        "ftsRank:proc:orderBy": {
+          description:
+            "Should you be able to order by the FTS rank for this 'computed column' function?",
           entities: ["pgResource"],
         },
       },
@@ -170,6 +182,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
         inferred: {
           provides: ["default"],
           before: ["inferred", "override"],
+          after: ["PgCodecsPlugin"],
           callback(behavior, [codec, attributeName], build) {
             const attr = codec.attributes[attributeName];
             if (attr.codec === build.dataplanPg.TYPES.tsvector) {
@@ -177,9 +190,29 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
               // -attribute:base -attribute:select -attribute:insert
               // -attribute:update -condition:attribute:filterBy
               // -attribute:orderBy
-              return [behavior, "fts:attribute:filterBy"];
+              return [
+                behavior,
+                "ftsRank:attribute:orderBy",
+                "ftsRank:attribute:select",
+              ];
             }
             return behavior;
+          },
+        },
+      },
+      pgResource: {
+        inferred: {
+          provides: ["default"],
+          before: ["inferred", "override"],
+          after: ["PgProceduresPlugin"],
+          callback(behavior, resource, build) {
+            if (!resource.parameters) {
+              return behavior;
+            }
+            if (resource.codec !== build.dataplanPg.TYPES.tsvector) {
+              return behavior;
+            }
+            return [behavior, "ftsRank:proc:orderBy", "ftsRank:proc:select"];
           },
         },
       },
@@ -331,7 +364,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           if (
             !behavior.pgCodecAttributeMatches(
               [codec, attributeName],
-              "fts:attribute:filterBy",
+              "ftsRank:attribute:select",
             )
           ) {
             continue;
@@ -355,7 +388,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
             if (!r.parameters[0]) return false;
             if (r.parameters[0].codec !== codec) return false;
             if (!behavior.pgResourceMatches(r, "typeField")) return false;
-            if (!behavior.pgResourceMatches(r, "fts:proc:filterBy"))
+            if (!behavior.pgResourceMatches(r, "ftsRank:proc:select"))
               return false;
             if (typeof r.from !== "function") return false;
 
@@ -430,7 +463,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           if (
             !behavior.pgCodecAttributeMatches(
               [codec, attributeName],
-              "fts:attribute:filterBy",
+              "ftsRank:attribute:orderBy",
             )
           ) {
             continue;
@@ -467,7 +500,8 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
             if (!r.parameters[0]) return false;
             if (r.parameters[0].codec !== codec) return false;
             if (!behavior.pgResourceMatches(r, "typeField")) return false;
-            if (!behavior.pgResourceMatches(r, "orderBy")) return false;
+            if (!behavior.pgResourceMatches(r, "ftsRank:proc:orderBy"))
+              return false;
             if (typeof r.from !== "function") return false;
 
             // Must have only one required argument
