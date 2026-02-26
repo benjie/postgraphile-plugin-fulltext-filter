@@ -34,6 +34,10 @@ declare global {
     interface ScopeObjectFieldsField {
       isPgTSVRankField?: boolean;
     }
+    interface BehaviorStrings {
+      "fts:attribute:filterBy": true;
+      "fts:proc:filterBy": true;
+    }
   }
   namespace GraphileConfig {
     interface Plugins {
@@ -147,6 +151,39 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
   },
 
   schema: {
+    behaviorRegistry: {
+      add: {
+        "fts:attribute:filterBy": {
+          description:
+            "Should the 'full text search' derivative of this attribute be added?",
+          entities: ["pgCodecAttribute"],
+        },
+        "fts:proc:filterBy": {
+          description:
+            "Should the 'full text search' derivative of this 'computed column' function be added?",
+          entities: ["pgResource"],
+        },
+      },
+    },
+    entityBehavior: {
+      pgCodecAttribute: {
+        inferred: {
+          provides: ["default"],
+          before: ["inferred", "override"],
+          callback(behavior, [codec, attributeName], build) {
+            const attr = codec.attributes[attributeName];
+            if (attr.codec === build.dataplanPg.TYPES.tsvector) {
+              // Core added:
+              // -attribute:base -attribute:select -attribute:insert
+              // -attribute:update -condition:attribute:filterBy
+              // -attribute:orderBy
+              return [behavior, "fts:attribute:filterBy"];
+            }
+            return behavior;
+          },
+        },
+      },
+    },
     hooks: {
       init(_, build) {
         const {
@@ -294,7 +331,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           if (
             !behavior.pgCodecAttributeMatches(
               [codec, attributeName],
-              "attribute:filterBy",
+              "fts:attribute:filterBy",
             )
           ) {
             continue;
@@ -318,7 +355,8 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
             if (!r.parameters[0]) return false;
             if (r.parameters[0].codec !== codec) return false;
             if (!behavior.pgResourceMatches(r, "typeField")) return false;
-            if (!behavior.pgResourceMatches(r, "proc:filterBy")) return false;
+            if (!behavior.pgResourceMatches(r, "fts:proc:filterBy"))
+              return false;
             if (typeof r.from !== "function") return false;
 
             // Must have only one required argument
@@ -392,7 +430,7 @@ const PostGraphileFulltextFilterPlugin: GraphileConfig.Plugin = {
           if (
             !behavior.pgCodecAttributeMatches(
               [codec, attributeName],
-              "attribute:filterBy",
+              "fts:attribute:filterBy",
             )
           ) {
             continue;
