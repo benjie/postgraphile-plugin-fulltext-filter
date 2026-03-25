@@ -1,4 +1,4 @@
-[![Package on npm](https://img.shields.io/npm/v/postgraphile-plugin-fulltext-filter.svg)](https://www.npmjs.com/package/postgraphile-plugin-fulltext-filter)
+[![Package on npm](https://img.shields.io/npm/v/@graphile-contrib/postgraphile-plugin-fulltext-filter.svg)](https://www.npmjs.com/package/@graphile-contrib/postgraphile-plugin-fulltext-filter)
 [![CircleCI](https://circleci.com/gh/mlipscombe/postgraphile-plugin-fulltext-filter/tree/master.svg?style=svg)](https://circleci.com/gh/mlipscombe/postgraphile-plugin-fulltext-filter/tree/master)
 
 # postgraphile-plugin-fulltext-filter
@@ -17,10 +17,10 @@ import { PostGraphileConnectionFilterPreset } from "postgraphile-plugin-connecti
 import {
   PgFulltextFilterPlugin,
   PgFulltextExposePlugin,
-} from "postgraphile-plugin-fulltext-filter";
+} from "@graphile-contrib/postgraphile-plugin-fulltext-filter";
 
 const config: GraphileConfig.Preset = {
-  extends: [AmberPreset, PostGraphileConnectionFilterPlugin],
+  extends: [PostGraphileAmberPreset, PostGraphileConnectionFilterPreset],
   plugins: [
     PgFulltextFilterPlugin,
 
@@ -33,6 +33,8 @@ const config: GraphileConfig.Preset = {
     // PgFulltextExposePlugin,
   ],
 };
+
+export default config;
 ```
 
 ## Performance
